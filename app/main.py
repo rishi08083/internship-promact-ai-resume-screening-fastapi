@@ -1,12 +1,4 @@
 from fastapi import FastAPI
-<<<<<<< Updated upstream
-from api import resume
-
-# from app import resume, screening
-
-app = FastAPI()
-
-=======
 from fastapi.middleware.cors import CORSMiddleware
 from api import resume
 
@@ -21,7 +13,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
->>>>>>> Stashed changes
 app.include_router(resume.router, prefix="/api", tags=["resume"])
 # app.include_router(screening.router, prefix="/api/v1", tags=["screening"])
 
