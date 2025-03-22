@@ -41,6 +41,8 @@ def extract_text_from_doc(file_content : bytes, file_extension: str) :
 
             os.remove('temp.doc')
 
+            return ext_txt
+
         except Exception as e:
             raise Exception(f"DOC extraction failed: {str(e)}") 
 
