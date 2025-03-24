@@ -3,8 +3,6 @@ import pytesseract
 import io
 from typing import Optional
 
-# pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-
 def extract_text_from_image(file_content: bytes) -> str:
     
     try:
