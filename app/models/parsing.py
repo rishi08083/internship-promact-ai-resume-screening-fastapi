@@ -19,7 +19,7 @@ model = genai.GenerativeModel('gemini-2.0-flash')
 
 def parse_resume_text(resume_txt : str):
 
-    prompt = prompt = """
+    prompt = """
     You are an expert resume parser. Parse the following resume text and return the result as a valid JSON string:
     - name (string): The candidate's full name
     - email (string): The candidate's email address
