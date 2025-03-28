@@ -12,7 +12,7 @@ async def parse_pdf_resume(file_key : str):
     try:
         file_content = download_from_s3_to_buffer(file_key)
         if not file_content:
-            raise HTTPException(status_code=400, detail="Downloaded PDF file is empty.")
+            raise HTTPException(status_code=400, detail="PDF file is empty.")
         
         file_extension = file_key.split(".")[-1].lower()
         if file_extension != "pdf":
@@ -32,7 +32,7 @@ async def parse_doc_resume(file_key : str):
     try:
         file_content = download_from_s3_to_buffer(file_key)
         if not file_content:
-            raise HTTPException(status_code=400, detail="Downloaded DOC/DOCX file is empty.")
+            raise HTTPException(status_code=400, detail="DOC/DOCX file is empty.")
 
         file_extension = file_key.split(".")[-1].lower()
         if file_extension not in ["docx", "doc"]:
