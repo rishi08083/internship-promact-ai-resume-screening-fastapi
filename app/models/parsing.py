@@ -30,7 +30,11 @@ def parse_resume_text(resume_txt : str):
         - job_title (string): Job title
         - start_date (string): Start date of the job (format: YYYY-MM)
         - end_date (string): End date of the job (format: YYYY-MM or "Present")
-    - education (list of strings): List of educational qualifications or institutions
+    - education (list of objects): Each object contains:
+        - College (string): Name of the college
+        - Degree (string): Degree title
+        - start_date (string): Start date of the degree/college (format: YYYY-MM)
+        - end_date (string): End date of the degree/college (format: YYYY-MM or "Present")
     - locations (list of strings): List of locations mentioned (e.g., cities, countries)
 
     Ensure the output is a valid JSON string.

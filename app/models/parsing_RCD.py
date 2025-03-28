@@ -30,9 +30,7 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
             "responsibilities": ["string", ...],
             "skills_required": ["string", ...],
             "knowledge_areas": ["string", ...],
-            "experience": ["string", ...],
             "key_tasks": ["string", ...],
-            "training_requirements": ["string", ...]
         }}
 
         Do **not** include any additional explanation or formatting.
@@ -43,13 +41,10 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
 
     extracted_data = {
         "role_name": None,
-        "role_summary": None,
         "responsibilities": [],
         "skills_required": [],
         "knowledge_areas": [],
-        "experience": [],
         "key_tasks": [],
-        "training_requirements": []
     }
     
     try:
@@ -73,7 +68,7 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
 if __name__ == "__main__":
     sample_rcd_text = """
     Role Name:
-    Software Engineer – II (AI & ML)
+    Software Engineer - II (AI & ML)
 
     Role Summary:
     The Software Engineer - II (AI/ML) is responsible for developing, designing, and implementing advanced AI/ML models and solutions for various projects. They work under routine direction, assisting immediate colleagues in achieving organizational and team goals while demonstrating more independence in their role within the AI/ML domain.

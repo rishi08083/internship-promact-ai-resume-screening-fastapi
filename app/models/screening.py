@@ -1,61 +1,172 @@
 from sentence_transformers import SentenceTransformer, util
-import spacy
-from typing import Dict
+import google.generativeai as genai
+from dotenv import load_dotenv
+import os
+import json
 
-# Load pre-trained models
-nlp = spacy.load("en_core_web_sm")
-model = SentenceTransformer("all-MiniLM-L6-v2")
+model_jd = SentenceTransformer("all-MiniLM-L6-v2")
+model_rcd = SentenceTransformer("all-MiniLM-L6-v2")
+load_dotenv()
 
-def screen_candidate(resume_data: Dict[str, str], jd_data: Dict[str, str]) -> Dict:
+GEMINI_API_KEY = os.getenv('API_KEY') 
+
+if not GEMINI_API_KEY:
+    raise ValueError("API_KEY not found in environment variables.")
+
+genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel('gemini-2.0-flash')
+
+def compute_bert_similarity(data_skills, jd_skills):
+    embeddings = model_jd.encode([data_skills, jd_skills], convert_to_tensor=True)  
+    similarity = util.pytorch_cos_sim(embeddings[0], embeddings[1]).item()
+    return similarity
+
+def compute_rcd_similarity(data_skills, parsed_rcd):
+    embeddings = model_rcd.encode([data_skills, parsed_rcd], convert_to_tensor=True)
+    similarity = util.pytorch_cos_sim(embeddings[0], embeddings[1]).item()
+    return similarity
+
+def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experience, parsed_rcd, final_percent, jd_skill_score, rcd_skill_score):
+    
+    prompt = f"""
+    You are an AI recruitment assistant. You will be given experience required for job along with the job title and 
+    canditate's experience on a specific job-title. You need to first check whether the title for the job and title of 
+    candidate's previous experience should match and if not say not to proceed with the candidate and if do set it as TRUE and
+    proceed with checking whether experience matches or not. Candidates experience could be more than mentioned 
+    job experience. You will be given candidate's detailed resume information, role clarity description(rcd) and job 
+    description(jd). I will also pass the JD_Skill_Match, RCD_Skill_Match_Score and final skill matched score between candidate's resume and jd and candidate's 
+    resume and rcd . If both job title and experience matches, then Check the final skill score and give your insight and 
+    say whether canditate should be hired or not. Return your feedback in JSON format. Use next line after each section.
+
+    Here are the details:
+
+    - **Required experience:** {", ".join(jd_experience)}
+    -**Candidate previous job titles:** {", ".join(data_experience['title'])}
+    - **Candidate years of experience: ** {data_experience['experience']}
+    - **Candidate skills:** {", ".join(data_skills)}
+    - **Job Description Required Skills:** {jd_skills}
+    - **Role Clarity Description Required Skills:** {parsed_rcd}
+    - **Skill Match Score:** {jd_skill_score, rcd_skill_score, final_percent}%
+
+
+
+    Give the output in the following form : 
+    
+    "feedback": [
+        "title_match : True/False",
+        "experience_match : True/False",
+        "Give recommendation on the basis of the scores only (if final score > 65 then recommend else not)"
+    ]
+
     """
-    Screen a candidate by comparing resume data to job description data.
-    Returns a match score (0-100) and detailed insights.
-    """
-    # Extract key fields (fallback to empty string if missing)
-    resume_skills = resume_data.get("skills", "").split(", ")
-    resume_experience = resume_data.get("experience", "")
-    jd_skills = jd_data.get("required_skills", "").split(", ")
-    jd_experience = jd_data.get("experience", "")
+    
+    response = model.generate_content(prompt)
+    
+    feedback_text = response.text.strip()
+    
+    if feedback_text.startswith("```json"):
+        feedback_text = feedback_text[7:-3].strip()  # Remove ```json and ```
 
-    # Calculate skill match using vector embeddings
-    resume_skill_text = " ".join(resume_skills)
-    jd_skill_text = " ".join(jd_skills)
-    resume_embedding = model.encode(resume_skill_text, convert_to_tensor=True)
-    jd_embedding = model.encode(jd_skill_text, convert_to_tensor=True)
-    skill_similarity = util.cos_sim(resume_embedding, jd_embedding).item()  # 0 to 1
-
-    # Calculate experience match (simple heuristic for now)
-    resume_years = _extract_years(resume_experience)
-    jd_years = _extract_years(jd_experience)
-    experience_match = min(resume_years / jd_years if jd_years > 0 else 1.0, 1.0)  # Cap at 1.0
-
-    # Weighted scoring (adjust weights as needed)
-    skill_weight = 0.6
-    exp_weight = 0.4
-    match_score = (skill_similarity * skill_weight + experience_match * exp_weight) * 100  # Scale to 0-100
-
-    # Generate insights
-    missing_skills = [skill for skill in jd_skills if skill not in resume_skills]
-    details = {
-        "skill_match": skill_similarity * 100,  # Percentage
-        "experience_match": experience_match * 100,  # Percentage
-        "missing_skills": missing_skills if missing_skills else "None"
-    }
-
-    return {
-        "match_score": round(match_score, 2),
-        "details": details
-    }
-
-def _extract_years(experience: str) -> float:
-    """
-    Extract years of experience from a string (e.g., '5 years' -> 5.0).
-    """
     try:
-        # Simple parsing for demo; enhance with regex for production
-        for part in experience.split():
-            if part.isdigit() or part.replace(".", "").isdigit():
-                return float(part)
-        return 0.0
-    except Exception:
-        return 0.0
+        feedback_json = json.loads(feedback_text)  # Parse JSON
+        return feedback_json
+    except json.JSONDecodeError:
+        return {"error": "Failed to parse AI-generated feedback", "raw_feedback": feedback_text}
+
+def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skills, jd_experience, rcd_tot_skills):
+    # Compute JD Skills similarity score
+    jd_similarity_score = compute_bert_similarity(data_skills, jd_skills)
+    jd_skill_score = jd_similarity_score
+
+    # Compute RCD Skills similarity score
+    rcd_similarity_score = compute_rcd_similarity(data_skills, str(rcd_tot_skills).lower())
+    rcd_skill_score = rcd_similarity_score
+
+    # Final combined score
+    final_score = (jd_skill_score * 0.5) + (rcd_skill_score * 0.5)
+    final_skill_match_percent = final_score * 100
+
+    # Generate feedback based on skills and experience match
+    feedback = generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experience, rcd_tot_skills, final_skill_match_percent, jd_skill_score, rcd_skill_score)
+
+    feedback.update({
+        "JD_Skill_Match" : jd_skill_score * 100,
+        "RCD_Skill_Match" : rcd_skill_score * 100 ,
+        "Combined_Skill_Match" : final_skill_match_percent
+    })
+
+    return feedback
+
+
+if __name__ == '__main__':
+
+    candidate_exp = {
+        'title' : 'software engineer - ii (ai/ml)',
+        'experience' : 5
+    }
+
+    cd_skills = [
+    "AWS", "Azure", "Google Cloud Platform (GCP)", "EC2", "S3", "Lambda", "CloudFormation",
+    "Terraform", "Kubernetes", "Helm", "Docker", "EKS", "AKS", "GKE", "Serverless Computing",
+
+    "Jenkins", "GitLab CI/CD", "GitHub Actions", "CircleCI", "ArgoCD", "Spinnaker", "Tekton",
+    "Bash Scripting", "Python", "Groovy", "Ansible", "Puppet", "Chef", "SaltStack",
+
+    "Prometheus", "Grafana", "ELK Stack (Elasticsearch, Logstash, Kibana)", "Splunk", "Datadog",
+    "New Relic", "OpenTelemetry", "CloudWatch", "Nagios", "Zabbix",
+
+    "IAM", "Vault", "HashiCorp Vault", "SIEM", "OWASP Security Practices", "Container Security",
+    "Infrastructure as Code (IaC) Security", "Zero Trust Architecture", "SSL/TLS", "SAST & DAST",
+    
+    "Nginx", "HAProxy", "Traefik", "Envoy Proxy", "DNS Management", "CDN", "API Gateway", 
+    "Load Balancers", "Service Mesh (Istio, Linkerd)",
+
+    "Git", "Bitbucket", "GitHub", "GitLab", "Branching Strategies", "Code Review Practices",
+
+    "Linux", "Bash", "PowerShell", "Unix Administration", "Filesystem Management",
+
+    "APM (Application Performance Monitoring)", "Logging Strategies", "Distributed Tracing",
+    
+    "Incident Management", "Root Cause Analysis", "Troubleshooting", "Analytical Thinking",
+    "Collaboration", "Communication Skills"
+    ]
+
+    jd_skills = """
+        Skills (Must Have): Deep understanding of AI/ML concepts, algorithms, and techniques, extensive experience in developing and implementing AI/ML models for various use cases, proficiency in programming languages commonly used in AI/ML, such as Python, hands-on experience with popular AI/ML frameworks and libraries (e.g., TensorFlow, PyTorch, Keras, scikit-learn), experience with data preprocessing, feature engineering, and model evaluation techniques, familiarity with Natural Language Processing (NLP) techniques and libraries (e.g., NLTK, spaCy, Transformers), comprehensive knowledge of Generative AI techniques and architectures (e.g., Transformer-based models, GANs, VAEs), experience with Large Language Models (LLMs) and their fine-tuning for specific tasks, understanding of Vector Databases and their applications in AI/ML (e.g., Faiss, Chroma, Azure Search, Elastic Search), experience with Retrieval-Augmented Generation (RAG) and its implementation using LLMs and Vector Databases, knowledge of Semantic Search and its implementation using embeddings and similarity measures, understanding of machine learning pipelines and MLOps practices, familiarity with cloud platforms (AWS, Azure, GCP) and their AI/ML offerings, strong problem-solving skills and ability to develop innovative solutions to complex AI/ML challenges, excellent communication and mentoring skills to effectively guide and collaborate with team members, bachelor's or master's degree in Computer Science, Data Science, or a related field, minimum of 3-4 years of experience in AI/ML development. Skills (Good to Have): Knowledge of computer vision and image processing techniques (OpenCV, Pillow, scikit-image), familiarity with pre-training techniques for LLMs (e.g., Masked Language Modeling, Next Sentence Prediction), knowledge of Chatbot development frameworks and platforms (e.g., Rasa, Dialogflow), familiarity with Entity Recognition and Extraction techniques (e.g., Named Entity Recognition, Relation Extraction), familiarity with experiment tracking and model versioning tools (MLflow, Weights & Biases), understanding of data privacy and security best practices in AI/ML development."""
+    jd_exp = {
+        'title' : "software engineer - ii (ai/ml)",
+        'experience' : '3-5 years'
+    }
+
+    rcd_tot_skills = {
+        "rcd_skills":  [
+        "Communication skills",
+        "Understanding of appropriate methods, tools, applications, and processes",
+        "Creative thinking",
+        "Problem-solving",
+        "Knowledge absorption",
+        "Documentation"
+    ],
+        "rcd_knowledge_areas":  [
+        "AI/ML models",
+        "Generative AI",
+        "RAG",
+        "Chatbots",
+        "Object Detection",
+        "Semantic Searching",
+        "Entity Recognition",
+        "Data preprocessing",
+        "Feature engineering",
+        "Model evaluation",
+        "Organizational standards",
+        "AI/ML development and security",
+        "Model architecture",
+        "Data processing workflows",
+        "Experiment tracking",
+        "Technical implementation",
+        "Analysis"
+    ]
+    }
+
+    res = screen_candidate_and_generate_feedback(cd_skills, candidate_exp, jd_skills, jd_exp, rcd_tot_skills)
+    print(res)
