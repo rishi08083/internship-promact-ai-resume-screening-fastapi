@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from typing import Dict, Optional, List
 import os
 from dotenv import load_dotenv
@@ -68,3 +69,8 @@ def parse_resume_text(resume_txt : str):
         print(f"Gemini API error: {str(e)}")
     
     return parsed_data
+=======
+def parse_resume(content: bytes) -> dict:
+    # Placeholder for resume parsing logic
+    return {"name": "John Doe", "skills": ["Python"]}
+>>>>>>> main
