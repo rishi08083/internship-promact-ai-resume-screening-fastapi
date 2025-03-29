@@ -14,7 +14,7 @@ if not GEMINI_API_KEY:
     raise ValueError("API_KEY not found in environment variables.")
 
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-2.0-flash')
+model = genai.GenerativeModel('gemini-2.0-flash-lite')
 
 def compute_bert_similarity(data_skills, jd_skills):
     embeddings = model_jd.encode([data_skills, jd_skills], convert_to_tensor=True)  
@@ -30,7 +30,7 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
     
     prompt = f"""
     You are an AI recruitment assistant. You will be given experience required for job along with the job title and 
-    canditate's experience on a specific job-title. You need to first check whether the title for the job and title of 
+    canditate's experience on a specific job-title. You need to first check whether the title for the job and any one of the title of 
     candidate's previous experience should match and if not say not to proceed with the candidate and if do set it as TRUE and
     proceed with checking whether experience matches or not. Candidates experience could be more than mentioned 
     job experience. You will be given candidate's detailed resume information, role clarity description(rcd) and job 
@@ -65,10 +65,10 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
     feedback_text = response.text.strip()
     
     if feedback_text.startswith("```json"):
-        feedback_text = feedback_text[7:-3].strip()  # Remove ```json and ```
+        feedback_text = feedback_text[7:-3].strip() 
 
     try:
-        feedback_json = json.loads(feedback_text)  # Parse JSON
+        feedback_json = json.loads(feedback_text) 
         return feedback_json
     except json.JSONDecodeError:
         return {"error": "Failed to parse AI-generated feedback", "raw_feedback": feedback_text}
@@ -86,7 +86,6 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
     final_score = (jd_skill_score * 0.5) + (rcd_skill_score * 0.5)
     final_skill_match_percent = final_score * 100
 
-    # Generate feedback based on skills and experience match
     feedback = generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experience, rcd_tot_skills, final_skill_match_percent, jd_skill_score, rcd_skill_score)
 
     feedback.update({
@@ -101,38 +100,55 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
 if __name__ == '__main__':
 
     candidate_exp = {
-        'title' : 'software engineer - ii (ai/ml)',
-        'experience' : 5
+        'title' : ['AI-ML Engineer', 'Software Developer - 1', 'Software Developer Intern'],
+        'experience' : "4 years"
     }
 
     cd_skills = [
-    "AWS", "Azure", "Google Cloud Platform (GCP)", "EC2", "S3", "Lambda", "CloudFormation",
-    "Terraform", "Kubernetes", "Helm", "Docker", "EKS", "AKS", "GKE", "Serverless Computing",
-
-    "Jenkins", "GitLab CI/CD", "GitHub Actions", "CircleCI", "ArgoCD", "Spinnaker", "Tekton",
-    "Bash Scripting", "Python", "Groovy", "Ansible", "Puppet", "Chef", "SaltStack",
-
-    "Prometheus", "Grafana", "ELK Stack (Elasticsearch, Logstash, Kibana)", "Splunk", "Datadog",
-    "New Relic", "OpenTelemetry", "CloudWatch", "Nagios", "Zabbix",
-
-    "IAM", "Vault", "HashiCorp Vault", "SIEM", "OWASP Security Practices", "Container Security",
-    "Infrastructure as Code (IaC) Security", "Zero Trust Architecture", "SSL/TLS", "SAST & DAST",
-    
-    "Nginx", "HAProxy", "Traefik", "Envoy Proxy", "DNS Management", "CDN", "API Gateway", 
-    "Load Balancers", "Service Mesh (Istio, Linkerd)",
-
-    "Git", "Bitbucket", "GitHub", "GitLab", "Branching Strategies", "Code Review Practices",
-
-    "Linux", "Bash", "PowerShell", "Unix Administration", "Filesystem Management",
-
-    "APM (Application Performance Monitoring)", "Logging Strategies", "Distributed Tracing",
-    
-    "Incident Management", "Root Cause Analysis", "Troubleshooting", "Analytical Thinking",
-    "Collaboration", "Communication Skills"
+        "Python",
+        "R",
+        "SQL",
+        "TensorFlow",
+        "PyTorch",
+        "Scikit-Learn",
+        "Keras",
+        "Numpy",
+        "Pandas",
+        "Matplotlib",
+        "Seaborn",
+        "OpenCV",
+        "Natural Language Processing (NLP)",
+        "Transformers (Hugging Face, BERT, GPT)",
+        "Computer Vision",
+        "Deep Learning",
+        "Machine Learning Model Deployment",
+        "MLOps",
+        "AWS SageMaker",
+        "Google Cloud AI Platform",
+        "Microsoft Azure ML",
+        "Hyperparameter tuning and optimization",
+        "Feature engineering and selection",
+        "Data preprocessing and augmentation",
+        "Reinforcement Learning",
+        "Model Explainability (SHAP, LIME)",
+        "Big Data Processing (Hadoop, Spark)",
+        "Time Series Forecasting",
+        "A/B Testing and Experimentation",
+        "Recommendation Systems",
+        "Speech Recognition and Synthesis",
+        "Edge AI and TinyML",
+        "AutoML frameworks",
+        "Graph Neural Networks",
+        "Bayesian Inference and Probabilistic Models",
+        "Federated Learning",
+        "Model Compression and Quantization"
     ]
+
+
 
     jd_skills = """
         Skills (Must Have): Deep understanding of AI/ML concepts, algorithms, and techniques, extensive experience in developing and implementing AI/ML models for various use cases, proficiency in programming languages commonly used in AI/ML, such as Python, hands-on experience with popular AI/ML frameworks and libraries (e.g., TensorFlow, PyTorch, Keras, scikit-learn), experience with data preprocessing, feature engineering, and model evaluation techniques, familiarity with Natural Language Processing (NLP) techniques and libraries (e.g., NLTK, spaCy, Transformers), comprehensive knowledge of Generative AI techniques and architectures (e.g., Transformer-based models, GANs, VAEs), experience with Large Language Models (LLMs) and their fine-tuning for specific tasks, understanding of Vector Databases and their applications in AI/ML (e.g., Faiss, Chroma, Azure Search, Elastic Search), experience with Retrieval-Augmented Generation (RAG) and its implementation using LLMs and Vector Databases, knowledge of Semantic Search and its implementation using embeddings and similarity measures, understanding of machine learning pipelines and MLOps practices, familiarity with cloud platforms (AWS, Azure, GCP) and their AI/ML offerings, strong problem-solving skills and ability to develop innovative solutions to complex AI/ML challenges, excellent communication and mentoring skills to effectively guide and collaborate with team members, bachelor's or master's degree in Computer Science, Data Science, or a related field, minimum of 3-4 years of experience in AI/ML development. Skills (Good to Have): Knowledge of computer vision and image processing techniques (OpenCV, Pillow, scikit-image), familiarity with pre-training techniques for LLMs (e.g., Masked Language Modeling, Next Sentence Prediction), knowledge of Chatbot development frameworks and platforms (e.g., Rasa, Dialogflow), familiarity with Entity Recognition and Extraction techniques (e.g., Named Entity Recognition, Relation Extraction), familiarity with experiment tracking and model versioning tools (MLflow, Weights & Biases), understanding of data privacy and security best practices in AI/ML development."""
+    
     jd_exp = {
         'title' : "software engineer - ii (ai/ml)",
         'experience' : '3-5 years'

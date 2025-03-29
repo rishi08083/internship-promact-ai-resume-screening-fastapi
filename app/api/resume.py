@@ -7,7 +7,7 @@ from services.download_file import download_from_s3_to_buffer
 
 router = APIRouter()
 
-@router.get("/parse_pdf_resume")
+@router.post("/parse_pdf_resume")
 async def parse_pdf_resume(file_key : str):
     try:
         file_content = download_from_s3_to_buffer(file_key)
@@ -30,7 +30,7 @@ async def parse_pdf_resume(file_key : str):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/parse_doc_resume")
+@router.post("/parse_doc_resume")
 async def parse_doc_resume(file_key : str):
     try:
         file_content = download_from_s3_to_buffer(file_key)
@@ -52,7 +52,7 @@ async def parse_doc_resume(file_key : str):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"DOC/DOCX processing failed: {str(e)}")
 
-@router.get("/parse_image_resume")
+@router.post("/parse_image_resume")
 async def parse_image_resume(file_key : str):
     try:
         file_content = download_from_s3_to_buffer(file_key)
