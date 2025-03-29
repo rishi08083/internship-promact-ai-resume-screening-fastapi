@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Dict, List
+from typing import Any, Dict, List
 from fastapi import APIRouter, HTTPException
 from services.download_file import download_from_s3_to_buffer
 from services.file_handler import extract_text_from_pdf
@@ -30,7 +30,7 @@ class ScreenCandidateRequest(BaseModel):
 
 class ScreenCandidateResponse(BaseModel):
     status: str
-    candidate: Dict[str, any]  # Candidate data, including skills and experience
+    candidate: Dict[str, Any]  # Candidate data, including skills and experience
     skills_score: float
     Exp_score: float
     feedback: str
