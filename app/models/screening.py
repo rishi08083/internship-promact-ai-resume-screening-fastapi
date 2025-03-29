@@ -27,7 +27,7 @@ def compute_rcd_similarity(data_skills, parsed_rcd):
     return similarity
 
 def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experience, parsed_rcd, final_percent, jd_skill_score, rcd_skill_score):
-    
+
     prompt = f"""
     You are an AI recruitment assistant. You will be given experience required for job along with the job title and 
     canditate's experience on a specific job-title. You need to first check whether the title for the job and any one of the title of 
@@ -39,9 +39,8 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
     say whether canditate should be hired or not. Return your feedback in JSON format. Use next line after each section.
 
     Here are the details:
-
-    - **Required experience:** {", ".join(jd_experience)}
-    -**Candidate previous job titles:** {", ".join(data_experience['title'])}
+    -**Required experience:** {", ".join(jd_experience)}
+    -**Candidate previous job titles:** {", ".join(data_experience['titles'])}
     - **Candidate years of experience: ** {data_experience['experience']}
     - **Candidate skills:** {", ".join(data_skills)}
     - **Job Description Required Skills:** {jd_skills}
@@ -52,11 +51,10 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
 
     Give the output in the following form : 
     
-    "feedback": [
-        "title_match : True/False",
-        "experience_match : True/False",
-        "Give recommendation on the basis of the scores only (if final score > 65 then recommend else not)"
-    ]
+    
+    ["title_match : True/False",
+    "experience_match : True/False",
+    "Give recommendation on the basis of the scores only (if final score > 40 then recommend else not)"]
 
     """
     
@@ -68,13 +66,18 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
         feedback_text = feedback_text[7:-3].strip() 
 
     try:
-        feedback_json = json.loads(feedback_text) 
-        return feedback_json
+
+        # Ensure the 'feedback' list is joined into a string
+        # if isinstance(feedback_dict.get('feedback', []), list):
+        #     feedback_dict['feedback'] = ' '.join(feedback_dict['feedback'])
+
+        # Return the dictionary
+        return feedback_text
     except json.JSONDecodeError:
         return {"error": "Failed to parse AI-generated feedback", "raw_feedback": feedback_text}
 
 def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skills, jd_experience, rcd_tot_skills):
-    # Compute JD Skills similarity score
+    
     jd_similarity_score = compute_bert_similarity(data_skills, jd_skills)
     jd_skill_score = jd_similarity_score
 
@@ -86,15 +89,29 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
     final_score = (jd_skill_score * 0.5) + (rcd_skill_score * 0.5)
     final_skill_match_percent = final_score * 100
 
-    feedback = generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experience, rcd_tot_skills, final_skill_match_percent, jd_skill_score, rcd_skill_score)
 
-    feedback.update({
+    feedback = generate_dynamic_feedback(
+        data_skills=data_skills, 
+        data_experience=data_experience, 
+        jd_skills=jd_skills, 
+        jd_experience=jd_experience, 
+        parsed_rcd=rcd_tot_skills, 
+        final_percent=final_skill_match_percent, 
+        jd_skill_score=jd_skill_score, 
+        rcd_skill_score=rcd_skill_score
+    )
+    
+    Response = {
+        "feedback" : feedback
+    }
+
+    Response.update({
         "JD_Skill_Match" : jd_skill_score * 100,
         "RCD_Skill_Match" : rcd_skill_score * 100 ,
         "Combined_Skill_Match" : final_skill_match_percent
     })
 
-    return feedback
+    return Response
 
 
 if __name__ == '__main__':

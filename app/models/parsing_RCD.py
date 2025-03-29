@@ -1,6 +1,5 @@
-from typing import Dict, List, Any
+from typing import Dict, Any
 import os
-import json
 import google.generativeai as genai
 from dotenv import load_dotenv
 import json
@@ -18,19 +17,13 @@ model = genai.GenerativeModel('gemini-2.0-flash')
 
 
 def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
-    
     prompt = f'''
         You are an expert job description parser. Extract the following details from the given Role Clarity Document (RCD)
-        and return a valid JSON string, formatted correctly.
-
-        Ensure the response is **only** valid JSON with keys and values matching:
+        and return the data in Python dictionary format with the keys and values matching:
+        
         {{
-            "role_name": "string",
-            "role_summary": "string",
-            "responsibilities": ["string", ...],
             "skills_required": ["string", ...],
             "knowledge_areas": ["string", ...],
-            "key_tasks": ["string", ...],
         }}
 
         Do **not** include any additional explanation or formatting.
@@ -40,30 +33,78 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
     '''
 
     extracted_data = {
-        "role_name": None,
-        "responsibilities": [],
         "skills_required": [],
         "knowledge_areas": [],
-        "key_tasks": [],
     }
-    
+
     try:
         response = model.generate_content(prompt)
         raw_response = response.text.strip()
+        clean_response = re.sub(r"^```.*\n|\n```$", "", raw_response).strip()
 
-        # Remove surrounding triple backticks (if any)
-        clean_json = re.sub(r"^```json|```$", "", raw_response).strip()
-        
-        if not clean_json:  
+        if not clean_response:
             raise ValueError("Empty response from Gemini API.")
-    
-        extracted_data = json.loads(clean_json)  
+        
+        try:
+            extracted_data = json.loads(clean_response)
+        except json.JSONDecodeError as json_err:
+            print(f"JSON Decode Error: {json_err}. Response may not be valid JSON.")
+            raise
+        
     except (json.JSONDecodeError, ValueError) as e:
         print(f"Error: {str(e)}. Falling back to manual extraction.")
     except Exception as e:
         print(f"Gemini API error: {str(e)}")
-    
+
     return extracted_data
+
+# def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
+    
+#     prompt = f'''
+#         You are an expert job description parser. Extract the following details from the given Role Clarity Document (RCD)
+#         and return a valid JSON string, formatted correctly.
+
+#         Ensure the response is **only** valid JSON with keys and values matching:
+#         {{
+#             "role_name": "string",
+#             "role_summary": "string",
+#             "responsibilities": ["string", ...],
+#             "skills_required": ["string", ...],
+#             "knowledge_areas": ["string", ...],
+#             "key_tasks": ["string", ...],
+#         }}
+
+#         Do **not** include any additional explanation or formatting.
+
+#         RCD text:
+#         {rcd_text}
+#     '''
+
+#     extracted_data = {
+#         "role_name": None,
+#         "responsibilities": [],
+#         "skills_required": [],
+#         "knowledge_areas": [],
+#         "key_tasks": [],
+#     }
+    
+#     try:
+#         response = model.generate_content(prompt)
+#         raw_response = response.text.strip()
+
+#         # Remove surrounding triple backticks (if any)
+#         clean_json = re.sub(r"^```json|```$", "", raw_response).strip()
+        
+#         if not clean_json:  
+#             raise ValueError("Empty response from Gemini API.")
+    
+#         extracted_data = json.loads(clean_json)  
+#     except (json.JSONDecodeError, ValueError) as e:
+#         print(f"Error: {str(e)}. Falling back to manual extraction.")
+#     except Exception as e:
+#         print(f"Gemini API error: {str(e)}")
+    
+#     return extracted_data
 
 if __name__ == "__main__":
     sample_rcd_text = """
