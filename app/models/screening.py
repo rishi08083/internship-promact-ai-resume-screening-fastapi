@@ -4,8 +4,7 @@ from dotenv import load_dotenv
 import os
 import json
 
-model_jd = SentenceTransformer("all-MiniLM-L6-v2")
-model_rcd = SentenceTransformer("all-MiniLM-L6-v2")
+model_Bert = SentenceTransformer("all-MiniLM-L6-v2")
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv('API_KEY') 
@@ -17,12 +16,12 @@ genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash-lite')
 
 def compute_bert_similarity(data_skills, jd_skills):
-    embeddings = model_jd.encode([data_skills, jd_skills], convert_to_tensor=True)  
+    embeddings = model_Bert.encode([data_skills, jd_skills], convert_to_tensor=True)  
     similarity = util.pytorch_cos_sim(embeddings[0], embeddings[1]).item()
     return similarity
 
 def compute_rcd_similarity(data_skills, parsed_rcd):
-    embeddings = model_rcd.encode([data_skills, parsed_rcd], convert_to_tensor=True)
+    embeddings = model_Bert.encode([data_skills, parsed_rcd], convert_to_tensor=True)
     similarity = util.pytorch_cos_sim(embeddings[0], embeddings[1]).item()
     return similarity
 
@@ -30,13 +29,15 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
 
     prompt = f"""
     You are an AI recruitment assistant. You will be given experience required for job along with the job title and 
-    canditate's experience on a specific job-title. You need to first check whether the title for the job and any one of the title of 
-    candidate's previous experience should match and if not say not to proceed with the candidate and if do set it as TRUE and
-    proceed with checking whether experience matches or not. Candidates experience could be more than mentioned 
-    job experience. You will be given candidate's detailed resume information, role clarity description(rcd) and job 
-    description(jd). I will also pass the JD_Skill_Match, RCD_Skill_Match_Score and final skill matched score between candidate's resume and jd and candidate's 
-    resume and rcd . If both job title and experience matches, then Check the final skill score and give your insight and 
-    say whether canditate should be hired or not. Return your feedback in JSON format. Use next line after each section.
+    canditate's experience on a specific job-title. You need to check whether the title for the job and any 
+    one of the title of candidate's previous experience should be exact match(i.e., Software Engineer/Developer is not 
+    equal to AI-ML Engineer) and if not say set title_match to False and if do set it as TRUE. Go and proceed with checking 
+    whether experience matches or not (i.e, candidate experience should be more than the min exp mentioned in JD ). 
+    Candidates experience could be more than mentioned job experience. You will be given candidate's detailed resume 
+    information, role clarity description(rcd) and job description(jd). I will also pass the JD_Skill_Match, 
+    RCD_Skill_Match_Score and final skill matched score between candidate's resume and jd and candidate's resume and rcd .
+     If both job title or experience is False give feedback not to hire, else Check the final skill score and give your 
+     insight and say whether canditate should be hired or not. Return your feedback in JSON format. Use next line after each section. Keep your response consistent.
 
     Here are the details:
     -**Required experience:** {", ".join(jd_experience)}
