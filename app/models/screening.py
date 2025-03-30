@@ -4,7 +4,9 @@ from dotenv import load_dotenv
 import os
 import json
 
-model_Bert = SentenceTransformer("all-MiniLM-L6-v2")
+model_1 = SentenceTransformer("all-MiniLM-L6-v2")
+model_2 = SentenceTransformer("all-MiniLM-L6-v2")
+
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv('API_KEY') 
@@ -13,83 +15,115 @@ if not GEMINI_API_KEY:
     raise ValueError("API_KEY not found in environment variables.")
 
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-2.0-flash-lite')
+model = genai.GenerativeModel('gemini-2.0-flash')
 
 def compute_bert_similarity(data_skills, jd_skills):
-    embeddings = model_Bert.encode([data_skills, jd_skills], convert_to_tensor=True)  
+    embeddings = model_1.encode([data_skills, jd_skills], convert_to_tensor=True)  
     similarity = util.pytorch_cos_sim(embeddings[0], embeddings[1]).item()
     return similarity
 
 def compute_rcd_similarity(data_skills, parsed_rcd):
-    embeddings = model_Bert.encode([data_skills, parsed_rcd], convert_to_tensor=True)
+    
+    embeddings = model_2.encode([data_skills, parsed_rcd], convert_to_tensor=True)
     similarity = util.pytorch_cos_sim(embeddings[0], embeddings[1]).item()
     return similarity
+    
 
 def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experience, parsed_rcd, final_percent, jd_skill_score, rcd_skill_score):
 
-    prompt = f"""
-    You are an AI recruitment assistant. You will be given experience required for job along with the job title and 
-    canditate's experience on a specific job-title. You need to check whether the title for the job and any 
-    one of the title of candidate's previous experience should be exact match(i.e., Software Engineer/Developer is not 
-    equal to AI-ML Engineer) and if not say set title_match to False and if do set it as TRUE. Go and proceed with checking 
-    whether experience matches or not (i.e, candidate experience should be more than the min exp mentioned in JD ). 
-    Candidates experience could be more than mentioned job experience. You will be given candidate's detailed resume 
-    information, role clarity description(rcd) and job description(jd). I will also pass the JD_Skill_Match, 
-    RCD_Skill_Match_Score and final skill matched score between candidate's resume and jd and candidate's resume and rcd .
-     If both job title or experience is False give feedback not to hire, else Check the final skill score and give your 
-     insight and say whether canditate should be hired or not. Return your feedback in JSON format. Use next line after each section. Keep your response consistent.
+    # prompt = f"""
+    # You are an AI recruitment assistant. You will be given experience required for job along with the job title and 
+    # canditate's experience on a specific job-title. You need to check whether the title for the job and any 
+    # one of the title of candidate's previous experience should be exact match(i.e., Software Engineer/Developer is not 
+    # equal to AI-ML Engineer) and if not say set title_match to False and if do set it as TRUE. Go and proceed with checking 
+    # whether experience matches or not (i.e, candidate experience should be more than the min exp mentioned in JD ). 
+    # Candidates experience could be more than mentioned job experience. You will be given candidate's detailed resume 
+    # information, role clarity description(rcd) and job description(jd). I will also pass the JD_Skill_Match, 
+    # RCD_Skill_Match_Score and final skill matched score between candidate's resume and jd and candidate's resume and rcd .
+    #  If both job title or experience is False give feedback not to hire, else Check the final skill score and give your 
+    #  insight and say whether canditate should be hired or not. Return your feedback in JSON format. Use next line after each section. Keep your response consistent.
 
-    Here are the details:
-    -**Required experience:** {", ".join(jd_experience)}
-    -**Candidate previous job titles:** {", ".join(data_experience['titles'])}
-    - **Candidate years of experience: ** {data_experience['experience']}
-    - **Candidate skills:** {", ".join(data_skills)}
-    - **Job Description Required Skills:** {jd_skills}
-    - **Role Clarity Description Required Skills:** {parsed_rcd}
-    - **Skill Match Score:** {jd_skill_score, rcd_skill_score, final_percent}%
+    # Here are the details:
+    # -**Required experience:** {", ".join(jd_experience)}
+    # -**Candidate previous job titles:** {", ".join(data_experience['titles'])}
+    # - **Candidate years of experience: ** {data_experience['experience']}
+    # - **Candidate skills:** {", ".join(data_skills)}
+    # - **Job Description Required Skills:** {jd_skills}
+    # - **Role Clarity Description Required Skills:** {parsed_rcd}
+    # - **Skill Match Score:** {jd_skill_score, rcd_skill_score, final_percent}%
 
 
 
-    Give the output in the following form : 
+    # Give the output in the following form : 
     
     
-    ["title_match : True/False",
-    "experience_match : True/False",
-    "Give recommendation on the basis of the scores only (if final score > 40 then recommend else not)"]
+    # ["title_match : True/False",
+    # "experience_match : True/False",
+    # "Give recommendation on the basis of the scores only (if final score > 40 then recommend else not)"]
+
+    # """
+
+    prompt2 = f"""
+        You are an AI recruitment assistant. Your task is to evaluate whether a candidate is a good fit for a job based on their job experience and skill match scores.Return your feedback in JSON format. Don't use next line after each section, rather keep it comma separated.
+
+        ### **Evaluation Criteria**:
+        1. **Experience Match**:
+        - Compare the **minimum experience required** in the job description with the candidate’s total years of experience.
+        - The candidate must have **equal to or more experience** than required.
+        - If the candidate's experience **meets or exceeds** the required experience, set `"experience_match": True`, otherwise, set `"experience_match": False`.
+
+        2. **Final Hiring Recommendation**:
+        - If **experience do not match**, give feedback: `"Not recommended for hiring as experience mismatch."`
+        - If **experience match**, assess the **final skill match score**:
+            - If **final skill match score > 40%**, recommend hiring.
+            - Otherwise, **do not recommend hiring**.
+
+        ### **Candidate & Job Details**:
+        - **Required Job Title:** `{", ".join(jd_experience['title'])}`
+        - **Candidate’s Previous Job Titles:** {", ".join(data_experience['titles'])}
+        - **Required Experience:** `{jd_experience['experience']} years`
+        - **Candidate’s Total Experience:** `{data_experience['experience']} years`
+        - **Job Description Required Skills:** `{jd_skills}`
+        - **Candidate Skills:** `{", ".join(data_skills)}`
+        - **Role Clarity Description Required Skills:** `{parsed_rcd}`
+        - **Skill Match Scores**:
+        - JD Skill Match Score: `{jd_skill_score}%`
+        - RCD Skill Match Score: `{rcd_skill_score}%`
+        - Final Skill Match Score: `{final_percent}%`
+
+        ---
+
+        ##Give the output in the following form : 
+        "experience_match : True/False",
+        "Give recommendation on the basis of the scores only (if final score > 40 then recommend else not)"
+
 
     """
     
-    response = model.generate_content(prompt)
+    response = model.generate_content(prompt2)
     
     feedback_text = response.text.strip()
     
-    if feedback_text.startswith("```json"):
-        feedback_text = feedback_text[7:-3].strip() 
+    if feedback_text[0:7] == "```json":
+        feedback_text = feedback_text[7:-3].strip()
 
     try:
-
-        # Ensure the 'feedback' list is joined into a string
-        # if isinstance(feedback_dict.get('feedback', []), list):
-        #     feedback_dict['feedback'] = ' '.join(feedback_dict['feedback'])
-
-        # Return the dictionary
         return feedback_text
     except json.JSONDecodeError:
         return {"error": "Failed to parse AI-generated feedback", "raw_feedback": feedback_text}
 
 def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skills, jd_experience, rcd_tot_skills):
-    
     jd_similarity_score = compute_bert_similarity(data_skills, jd_skills)
     jd_skill_score = jd_similarity_score
 
-    # Compute RCD Skills similarity score
-    rcd_similarity_score = compute_rcd_similarity(data_skills, str(rcd_tot_skills).lower())
-    rcd_skill_score = rcd_similarity_score
+    rcd_similarity_score_1 = compute_rcd_similarity(data_skills, rcd_tot_skills['rcd_skills'])
+    rcd_similarity_score_2 = compute_rcd_similarity(data_skills, rcd_tot_skills['rcd_knowledge_areas'])
+    rcd_similarity_score_3 = compute_rcd_similarity(data_skills, rcd_tot_skills['rcd_key_tasks'])
 
-    # Final combined score
+    rcd_skill_score = (rcd_similarity_score_1 + rcd_similarity_score_2 + rcd_similarity_score_3) / 3
+
     final_score = (jd_skill_score * 0.5) + (rcd_skill_score * 0.5)
     final_skill_match_percent = final_score * 100
-
 
     feedback = generate_dynamic_feedback(
         data_skills=data_skills, 
@@ -109,7 +143,7 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
     Response.update({
         "JD_Skill_Match" : jd_skill_score * 100,
         "RCD_Skill_Match" : rcd_skill_score * 100 ,
-        "Combined_Skill_Match" : final_skill_match_percent
+        "Combined_Skill_Match" :  final_skill_match_percent
     })
 
     return Response

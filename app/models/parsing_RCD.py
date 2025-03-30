@@ -24,6 +24,7 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
         {{
             "skills_required": ["string", ...],
             "knowledge_areas": ["string", ...],
+            "Key_tasks" : ["string", ...]
         }}
 
         Do **not** include any additional explanation or formatting.
@@ -35,6 +36,7 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
     extracted_data = {
         "skills_required": [],
         "knowledge_areas": [],
+        "Key_tasks": []
     }
 
     try:
