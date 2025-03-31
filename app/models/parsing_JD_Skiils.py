@@ -31,7 +31,11 @@ def extract_skills(rcd_text: str) -> List[str]:
     extracted_skills = []
 
     try:
-        response = model.generate_content(prompt)
+        generation_config = {
+            "temperature": 0
+        }
+
+        response = model.generate_content(prompt, generation_config=generation_config)
         clean_response = response.text.strip()
 
         if not clean_response:

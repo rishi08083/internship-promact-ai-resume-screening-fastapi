@@ -38,7 +38,12 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
     }
 
     try:
-        response = model.generate_content(prompt)
+        
+        generation_config = {
+            "temperature": 0
+        }
+
+        response = model.generate_content(prompt, generation_config=generation_config)
         raw_response = response.text.strip()
         clean_response = re.sub(r"^```.*\n|\n```$", "", raw_response).strip()
 

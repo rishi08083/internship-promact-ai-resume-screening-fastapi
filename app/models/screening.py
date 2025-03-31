@@ -66,8 +66,11 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
         "Give recommendation on the basis of the scores only (if final score > 40 then recommend else not)"
 
     """
-    
-    response = model.generate_content(prompt2)
+    generation_config = {
+        "temperature": 0
+    }
+
+    response = model.generate_content(prompt2, generation_config=generation_config)
     
     feedback_text = response.text.strip()
     

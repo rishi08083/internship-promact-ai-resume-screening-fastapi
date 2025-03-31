@@ -60,7 +60,11 @@ def parse_resume_text(resume_txt : str):
     }
 
     try:
-        response = model.generate_content(prompt)
+        generation_config = {
+            "temperature": 0
+        }
+
+        response = model.generate_content(prompt, generation_config=generation_config)
         cleaned_response = re.sub(r"```json\s*|\s*```", "", response.text).strip()
         parsed_data = json.loads(cleaned_response)
 
