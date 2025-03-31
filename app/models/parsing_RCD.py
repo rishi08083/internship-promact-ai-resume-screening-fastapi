@@ -7,7 +7,7 @@ import re
 
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv('API_KEY')
+GEMINI_API_KEY = os.getenv('API_KEY_2')
 
 if not GEMINI_API_KEY:
     raise ValueError("API_KEY not found in environment variables.")
@@ -24,7 +24,6 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
         {{
             "skills_required": ["string", ...],
             "knowledge_areas": ["string", ...],
-            "Key_tasks" : ["string", ...]
         }}
 
         Do **not** include any additional explanation or formatting.
@@ -35,8 +34,7 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
 
     extracted_data = {
         "skills_required": [],
-        "knowledge_areas": [],
-        "Key_tasks": []
+        "knowledge_areas": []
     }
 
     try:
@@ -59,54 +57,6 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
         print(f"Gemini API error: {str(e)}")
 
     return extracted_data
-
-# def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
-    
-#     prompt = f'''
-#         You are an expert job description parser. Extract the following details from the given Role Clarity Document (RCD)
-#         and return a valid JSON string, formatted correctly.
-
-#         Ensure the response is **only** valid JSON with keys and values matching:
-#         {{
-#             "role_name": "string",
-#             "role_summary": "string",
-#             "responsibilities": ["string", ...],
-#             "skills_required": ["string", ...],
-#             "knowledge_areas": ["string", ...],
-#             "key_tasks": ["string", ...],
-#         }}
-
-#         Do **not** include any additional explanation or formatting.
-
-#         RCD text:
-#         {rcd_text}
-#     '''
-
-#     extracted_data = {
-#         "role_name": None,
-#         "responsibilities": [],
-#         "skills_required": [],
-#         "knowledge_areas": [],
-#         "key_tasks": [],
-#     }
-    
-#     try:
-#         response = model.generate_content(prompt)
-#         raw_response = response.text.strip()
-
-#         # Remove surrounding triple backticks (if any)
-#         clean_json = re.sub(r"^```json|```$", "", raw_response).strip()
-        
-#         if not clean_json:  
-#             raise ValueError("Empty response from Gemini API.")
-    
-#         extracted_data = json.loads(clean_json)  
-#     except (json.JSONDecodeError, ValueError) as e:
-#         print(f"Error: {str(e)}. Falling back to manual extraction.")
-#     except Exception as e:
-#         print(f"Gemini API error: {str(e)}")
-    
-#     return extracted_data
 
 if __name__ == "__main__":
     sample_rcd_text = """

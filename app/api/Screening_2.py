@@ -81,7 +81,6 @@ async def screen_candidates(req: ScreenCandidateRequest):
         rcd_tot_skills = {
             "rcd_skills": rcd_data["skills_required"],  # List[str]
             "rcd_knowledge_areas": rcd_data["knowledge_areas"],  # List[str]
-            "rcd_key_tasks": rcd_data['Key_tasks']
         }
 
         val = screen_candidate_and_generate_feedback(

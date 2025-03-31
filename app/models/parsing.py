@@ -18,33 +18,6 @@ genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash')
 
 def parse_resume_text(resume_txt : str):
-
-    # prompt = """
-    # You are an expert resume parser. Parse the following resume text and return the result as a valid JSON string:
-    # - name (string): The candidate's full name
-    # - email (string): The candidate's email address
-    # - phone (string): The candidate's phone number (e.g., "+1-123-456-7890", "123-456-7890", or "+91-9876543210")
-    # - skills (list of strings): List of technical or soft skills mentioned and also give the work done at any company (if any).
-    # - experience (list of objects): Each object contains:
-    #     - company (string): Name of the company
-    #     - job_title (string): Job title
-    #     - start_date (string): Start date of the job (format: YYYY-MM)
-    #     - end_date (string): End date of the job (format: YYYY-MM or "Present")
-    # - education (list of objects): Each object contains:
-    #     - College (string): Name of the college
-    #     - Degree (string): Degree title
-    #     - start_date (string): Start date of the degree/college (format: YYYY-MM)
-    #     - end_date (string): End date of the degree/college (format: YYYY-MM or "Present")
-    # - locations (list of strings): List of locations mentioned (e.g., cities, countries)
-
-    # Ensure the output is a valid JSON string.
-    # If a field is missing, use null for strings or an empty list for arrays.
-    
-    # Resume text:
-    # {resume_txt}
-    # """.format(resume_txt=resume_txt)
-
-
     prompt = """
     You are an expert resume parser. Parse the following resume text and return the result as a valid JSON string:
     - name (string): The candidate's full name

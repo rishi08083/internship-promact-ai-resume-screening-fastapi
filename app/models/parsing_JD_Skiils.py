@@ -2,58 +2,16 @@ from typing import List
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
-import re
 
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv('API_KEY')
+GEMINI_API_KEY = os.getenv('API_KEY_2')
 
 if not GEMINI_API_KEY:
     raise ValueError("API_KEY not found in environment variables.")
 
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash')
-
-# def extract_skills(rcd_text: str) -> List[str]: 
-#     prompt = f"""
-#     You are an expert AI job description parser. Extract the **skills** mentioned in the following text and return them as a Python list of strings.
-
-#     Format the response as:
-#     ["skill 1", "skill 2", "skill 3", ...]
-
-#     Do not include any extra text, explanations, or formatting.
-
-#     RCD text:
-#     {rcd_text}
-#     """
-
-#     try:
-#         response = model.generate_content(prompt)
-#         raw_response = response.text.strip()
-
-#         # Remove markdown-style list formatting if any
-#         clean_response = re.sub(r"^```.*\n|\n```$", "", raw_response).strip()
-
-#         if not clean_response:
-#             raise ValueError("Empty response for JD Skills extraction from Gemini API.")
-        
-#         # print("Not formatted : " , clean_response)
-
-#         # # Convert the response into a Python list
-#         # extracted_skills = eval(clean_response)
-
-#         # print("Converted : ", extracted_skills)
-#         # print("Type : ", type(extracted_skills))
-
-#         # if not isinstance(extracted_skills, list) or not all(isinstance(skill, str) for skill in extracted_skills):
-#         #     raise ValueError("Invalid format received from Gemini API.")
-
-#     except (SyntaxError, ValueError) as e:
-#         print(f"Parsing error: {str(e)}. Gemini may have returned an unexpected format.")
-#     except Exception as e:
-#         print(f"Gemini API error: {str(e)}")
-
-#     return clean_response
 
 def extract_skills(rcd_text: str) -> List[str]: 
     prompt = f"""
