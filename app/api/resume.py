@@ -22,7 +22,7 @@ async def parse_pdf_resume(file_key : str):
 
         parsed_data = parse_resume_text(extracted_text)
 
-        if not any([parsed_data.get("name"), parsed_data.get("email"), parsed_data.get("phone")]):
+        if not all([parsed_data.get("name"), parsed_data.get("email"), parsed_data.get("phone")]):
             raise HTTPException(status_code=400, detail="File does not contain information (no name, email, or phone).")
 
         return {"status": "success", "data": parsed_data}
@@ -44,7 +44,7 @@ async def parse_doc_resume(file_key : str):
         extracted_text = extract_text_from_doc(file_content, file_extension)
         parsed_data = parse_resume_text(extracted_text)
 
-        if not any([parsed_data.get("name"), parsed_data.get("email"), parsed_data.get("phone")]):
+        if not all([parsed_data.get("name"), parsed_data.get("email"), parsed_data.get("phone")]):
             raise HTTPException(status_code=400, detail="File does not contain information (no name, email, or phone).")
 
         return {"status": "success", "data": parsed_data}
@@ -66,7 +66,7 @@ async def parse_image_resume(file_key : str):
         extracted_text = extract_text_from_image(file_content)
         parsed_data = parse_resume_text(extracted_text)
 
-        if not any([parsed_data.get("name"), parsed_data.get("email"), parsed_data.get("phone")]):
+        if not all([parsed_data.get("name"), parsed_data.get("email"), parsed_data.get("phone")]):
             raise HTTPException(status_code=400, detail="File does not contain information (no name, email, or phone).")
 
         return {"status": "success", "data": parsed_data}
