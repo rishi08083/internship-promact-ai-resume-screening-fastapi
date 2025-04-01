@@ -95,5 +95,4 @@
      For more detailed information, refer to the [pytesseract GitHub repository](https://github.com/madmaze/pytesseract).
      ```
 
-By following these steps, you'll have pytesseract installed and configured for OCR tasks on your system. 
 6. Run the app: `uvicorn main:app --reload`
