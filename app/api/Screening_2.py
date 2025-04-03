@@ -1,11 +1,11 @@
 from pydantic import BaseModel, Field
 from typing import Any, List
 from fastapi import APIRouter, HTTPException
-from services.download_file import download_from_s3_to_buffer
-from services.file_handler import extract_text_from_pdf
-from models.parsing_RCD import extract_rcd_info
-from models.screening import screen_candidate_and_generate_feedback
-from models.parsing_JD_Skiils import extract_skills
+from app.services.download_file import download_from_s3_to_buffer
+from app.services.file_handler import extract_text_from_pdf
+from app.models.parsing_RCD import extract_rcd_info
+from app.models.screening import screen_candidate_and_generate_feedback
+from app.models.parsing_JD_Skiils import extract_skills
 import json
 
 

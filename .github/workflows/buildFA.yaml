@@ -1,0 +1,35 @@
+# name: Build Check
+
+# on:
+#   pull_request:
+#     branches:
+#       - dev
+
+# jobs:
+#   build-fastapi:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Set up Python
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: '3.11'
+
+#       - name: Install dependencies
+#         run: |
+#           pip install --no-cache-dir -r requirements.txt
+
+#       - name: Lint Code
+#         run: |
+#           flake8 app
+
+#       - name: Format Check
+#         run: |
+#           black --check app
+
+#       - name: Run Tests (if any)
+#         run: |
+#           pytest
