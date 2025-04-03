@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
-from services.file_handler import extract_text_from_pdf
-from services.doc_handler import extract_text_from_doc
-from services.ocr_handler import extract_text_from_image
-from models.parsing import parse_resume_text
-from services.download_file import download_from_s3_to_buffer
+from app.services.file_handler import extract_text_from_pdf
+from app.services.doc_handler import extract_text_from_doc
+from app.services.ocr_handler import extract_text_from_image
+from app.models.parsing import parse_resume_text
+from app.services.download_file import download_from_s3_to_buffer
 
 router = APIRouter()
 

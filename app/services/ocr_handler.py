@@ -2,6 +2,10 @@ from PIL import Image
 import pytesseract
 import io
 from typing import Optional
+import os
+
+# Set Tesseract path
+pytesseract.pytesseract.tesseract_cmd = os.getenv("TESSERACT_PATH", "/usr/bin/tesseract")
 
 def extract_text_from_image(file_content: bytes) -> str:
     

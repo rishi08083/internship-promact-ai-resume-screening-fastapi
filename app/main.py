@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api import resume, Screening_2
+from .api import resume, Screening_2
 
 app = FastAPI()
 
