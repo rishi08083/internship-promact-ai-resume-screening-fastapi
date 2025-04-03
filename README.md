@@ -93,6 +93,5 @@
        ```
 
      For more detailed information, refer to the [pytesseract GitHub repository](https://github.com/madmaze/pytesseract).
-     ```
 
 6. Run the app: `uvicorn main:app --reload`
