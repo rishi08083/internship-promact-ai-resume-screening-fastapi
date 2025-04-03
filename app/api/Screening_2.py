@@ -34,8 +34,8 @@ class ScreenCandidateRequest(BaseModel):
 class ScreenCandidateResponse(BaseModel):
     status: str
     feedback: str|dict
-    JD_Skill_Match : float
-    RCD_Skill_Match : float
+    JD_Skill_Match : float|int
+    RCD_Skill_Match : float|int
     Combined_Score : float|int
     
 
@@ -100,9 +100,9 @@ async def screen_candidates(req: ScreenCandidateRequest):
 
         response = ScreenCandidateResponse(
             status="success",
-            JD_Skill_Match=val['JD_Skill_Match'],
-            RCD_Skill_Match=val['RCD_Skill_Match'],
-            Combined_Score=val['Combined_Skill_Match'],
+            JD_Skill_Match=max(0, val['JD_Skill_Match']),
+            RCD_Skill_Match=max(0, val['RCD_Skill_Match']),
+            Combined_Score=max(0, val['Combined_Skill_Match']),
             feedback=val["feedback"]
         )
 
