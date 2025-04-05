@@ -3,6 +3,7 @@ from typing import Any, List
 from fastapi import APIRouter, HTTPException
 from app.services.download_file import download_from_s3_to_buffer
 from app.services.file_handler import extract_text_from_pdf
+from app.services.doc_handler import extract_text_from_doc
 from app.models.parsing_RCD import extract_rcd_info
 from app.models.screening import screen_candidate_and_generate_feedback
 from app.models.parsing_JD_Skiils import extract_skills
@@ -66,16 +67,19 @@ async def screen_candidates(req: ScreenCandidateRequest):
             'experience' : jd_experience
         }
 
+        rcd_extension = rcd_file_key.split(".")[-1].lower()
+        if rcd_extension != "pdf" and rcd_extension != 'docx':
+            raise HTTPException(status_code=400, detail="RCD must be a PDF or a Docx file.")
+
         rcd_content = download_from_s3_to_buffer(rcd_file_key)
-        rcd_text = extract_text_from_pdf(rcd_content)
+        if rcd_extension == 'pdf':
+            rcd_text = extract_text_from_pdf(rcd_content)
+        elif rcd_extension == 'docx':
+            rcd_text = extract_text_from_doc(rcd_content, rcd_extension)
         rcd_text_cleaned = rcd_text.strip()
 
         if not rcd_text:
             raise HTTPException(status_code=400, detail="RCD file is empty.")
-
-        rcd_extension = rcd_file_key.split(".")[-1].lower()
-        if rcd_extension != "pdf":
-            raise HTTPException(status_code=400, detail="RCD must be a PDF file.")
 
         rcd_data = extract_rcd_info(rcd_text_cleaned)
         rcd_tot_skills = {
