@@ -1,16 +1,16 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from app.services.file_handler import extract_text_from_pdf
 from app.services.doc_handler import extract_text_from_doc
 from app.services.ocr_handler import extract_text_from_image
 from app.models.parsing import parse_resume_text
 from app.services.download_file import download_from_s3_to_buffer
+from app.services.auth import get_info
 
 router = APIRouter()
 
-# Hi
 
 @router.post("/parse_pdf_resume")
-async def parse_pdf_resume(file_key : str):
+async def parse_pdf_resume(file_key : str, payload : dict = Depends(get_info)):
     try:
         file_content = download_from_s3_to_buffer(file_key)
         if not file_content:
@@ -33,7 +33,7 @@ async def parse_pdf_resume(file_key : str):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/parse_doc_resume")
-async def parse_doc_resume(file_key : str):
+async def parse_doc_resume(file_key : str,  payload : dict = Depends(get_info)):
     try:
         file_content = download_from_s3_to_buffer(file_key)
         if not file_content:
@@ -55,7 +55,7 @@ async def parse_doc_resume(file_key : str):
         raise HTTPException(status_code=400, detail=f"DOCX processing failed: {str(e)}")
 
 @router.post("/parse_image_resume")
-async def parse_image_resume(file_key : str):
+async def parse_image_resume(file_key : str,  payload : dict = Depends(get_info)):
     try:
         file_content = download_from_s3_to_buffer(file_key)
         if not file_content:
