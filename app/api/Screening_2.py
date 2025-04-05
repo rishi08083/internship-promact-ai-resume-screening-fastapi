@@ -1,12 +1,13 @@
 from pydantic import BaseModel, Field
 from typing import Any, List
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from app.services.download_file import download_from_s3_to_buffer
 from app.services.file_handler import extract_text_from_pdf
 from app.services.doc_handler import extract_text_from_doc
 from app.models.parsing_RCD import extract_rcd_info
 from app.models.screening import screen_candidate_and_generate_feedback
 from app.models.parsing_JD_Skiils import extract_skills
+from app.services.auth import get_info
 import json
 
 
@@ -41,7 +42,7 @@ class ScreenCandidateResponse(BaseModel):
     
 
 @router.post("/screen_candidates_2", response_model=ScreenCandidateResponse)
-async def screen_candidates(req: ScreenCandidateRequest):
+async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depends(get_info)):
     try:
         jd = req.jd  # JD details
         rcd_file_key = req.rcd_file_key  # RCD file key from S3
