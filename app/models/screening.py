@@ -73,9 +73,11 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
     response = model.generate_content(prompt2, generation_config=generation_config)
     
     feedback_text = response.text.strip()
-    
-    if feedback_text[0:7] == "```json":
-        feedback_text = feedback_text[7:-3].strip()
+
+    if feedback_text.startswith("```json"):
+        feedback_text = feedback_text[len("```json"):].strip() 
+    if feedback_text.endswith("```"):
+        feedback_text = feedback_text[:-3].strip()
 
     try:
         return feedback_text
