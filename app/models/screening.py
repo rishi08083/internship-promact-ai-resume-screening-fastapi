@@ -8,7 +8,7 @@ model_1 = SentenceTransformer("all-MiniLM-L6-v2")
 
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv('API_KEY') 
+GEMINI_API_KEY = os.getenv('API_KEY_2') 
 
 if not GEMINI_API_KEY:
     raise ValueError("API_KEY not found in environment variables.")
