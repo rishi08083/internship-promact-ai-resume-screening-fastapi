@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 import json
 import re
 import google.generativeai as genai
+from fastapi import HTTPException
+
 
 load_dotenv()
 
@@ -78,6 +80,6 @@ def parse_resume_text(resume_txt : str):
         parsed_data["phone"] = re.search(r"(\+\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}", resume_txt)
         parsed_data["phone"] = parsed_data["phone"].group(0) if parsed_data["phone"] else None
     except Exception as e:
-        print(f"Gemini API error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Gemini API error: {str(e)}")
     
     return parsed_data

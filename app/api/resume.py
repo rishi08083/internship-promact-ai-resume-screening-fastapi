@@ -41,7 +41,7 @@ async def parse_doc_resume(file_key : str,  payload : dict = Depends(get_info)):
 
         file_extension = file_key.split(".")[-1].lower()
         if file_extension != "docx":
-            raise ValueError("Unsupported file format. Only .docx is supported.")
+            raise HTTPException(status_code=400, detail="Unsupported file format. Only .docx is supported.")
         
         extracted_text = extract_text_from_doc(file_content, file_extension)
         parsed_data = parse_resume_text(extracted_text)

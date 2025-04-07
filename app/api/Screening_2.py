@@ -42,7 +42,7 @@ class ScreenCandidateResponse(BaseModel):
     
 
 @router.post("/screen_candidates_2", response_model=ScreenCandidateResponse)
-async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depends(get_info)):
+async def screen_candidates(req: ScreenCandidateRequest):
     try:
         jd = req.jd  # JD details
         rcd_file_key = req.rcd_file_key  # RCD file key from S3
@@ -117,4 +117,3 @@ async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depen
         raise e
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Screening failed: {str(e)}")
-
