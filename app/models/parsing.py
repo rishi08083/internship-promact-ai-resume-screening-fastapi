@@ -7,7 +7,7 @@ import google.generativeai as genai
 from fastapi import HTTPException
 
 
-load_dotenv()
+load_dotenv(override=True)
 
 GEMINI_API_KEY = os.getenv('API_KEY')
 

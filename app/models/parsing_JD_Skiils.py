@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from fastapi import HTTPException
 
 
-load_dotenv()
+load_dotenv(override=True)
 
 GEMINI_API_KEY = os.getenv('API_KEY_2')
 

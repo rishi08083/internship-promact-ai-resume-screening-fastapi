@@ -8,7 +8,7 @@ from fastapi import HTTPException
 
 model_1 = SentenceTransformer("all-MiniLM-L6-v2")
 
-load_dotenv()
+load_dotenv(override=True)  
 
 GEMINI_API_KEY = os.getenv('API_KEY_2') 
 
