@@ -1,5 +1,7 @@
 from PyPDF2 import PdfReader
 import io 
+from fastapi import HTTPException
+
 
 
 def extract_text_from_pdf(file_content: bytes):
@@ -13,9 +15,11 @@ def extract_text_from_pdf(file_content: bytes):
                 ext_txt += page_txt + "\n"
         
         if (len(ext_txt) == 0) or (not ext_txt.strip()):
-            raise ValueError("No text extracted from PDF.")
+            raise HTTPException(status_code=400, detail="No text extracted from PDF.")
 
         return ext_txt
 
+    except HTTPException as e:
+        raise e 
     except Exception as e:
-        raise Exception(f"PDF extraction failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"PDF extraction failed: {str(e)}")

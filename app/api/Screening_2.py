@@ -117,4 +117,3 @@ async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depen
         raise e
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Screening failed: {str(e)}")
-

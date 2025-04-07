@@ -1,5 +1,6 @@
 import boto3
 import io
+from fastapi import HTTPException
 from dotenv import load_dotenv
 import os
 from botocore.exceptions import ClientError
@@ -26,5 +27,7 @@ def download_from_s3_to_buffer(file_key):
         return file_content
 
     except ClientError as e:
-        print(f"Failed to download from S3: {e}")
-        raise ValueError(f"Failed to download from S3: {e}")
+        error_code = e.response.get("Error", {}).get("Code", "UnknownError")
+        if error_code in ["NoSuchKey", "AccessDenied"]:
+            raise HTTPException(status_code=400, detail=f"Failed to download from S3: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to download from S3: {str(e)}")

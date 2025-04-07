@@ -3,10 +3,12 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import os
 import json
+from fastapi import HTTPException
+
 
 model_1 = SentenceTransformer("all-MiniLM-L6-v2")
 
-load_dotenv()
+load_dotenv(override=True)  
 
 GEMINI_API_KEY = os.getenv('API_KEY_2') 
 
@@ -63,6 +65,7 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
 
         ##Give the output in the following form : 
         "experience_match : True/False",
+        "Recommendation : Yes/No (if final score > 40 and experience match then Yes else No)",
         "Give recommendation on the basis of the scores only (if final score > 40 then recommend else not)"
 
     """
@@ -82,7 +85,7 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
     try:
         return feedback_text
     except json.JSONDecodeError:
-        return {"error": "Failed to parse AI-generated feedback", "raw_feedback": feedback_text}
+        raise HTTPException(status_code=500, detail=f"Failed to parse AI-generated feedback. Raw response: {feedback_text}")
 
 def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skills, jd_experience, rcd_tot_skills):
     jd_similarity_score = compute_bert_similarity(data_skills, jd_skills)

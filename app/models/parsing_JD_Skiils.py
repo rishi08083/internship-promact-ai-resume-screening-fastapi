@@ -2,8 +2,10 @@ from typing import List
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
+from fastapi import HTTPException
 
-load_dotenv()
+
+load_dotenv(override=True)
 
 GEMINI_API_KEY = os.getenv('API_KEY_2')
 
@@ -39,14 +41,14 @@ def extract_skills(rcd_text: str) -> List[str]:
         clean_response = response.text.strip()
 
         if not clean_response:
-            raise ValueError("Empty response from Gemini API.")
+            raise HTTPException(status_code=400, detail="Empty response from Gemini API.")
 
         skill_list = [skill.strip() for skill in clean_response.split(",") if skill.strip()]
 
         extracted_skills.extend(skill_list)
 
     except Exception as e:
-        print(f"Gemini API error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Gemini API error: {str(e)}")
 
     return extracted_skills
 

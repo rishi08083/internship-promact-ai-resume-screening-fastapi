@@ -4,8 +4,10 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import json
 import re
+from fastapi import HTTPException
 
-load_dotenv()
+
+load_dotenv(override=True)
 
 GEMINI_API_KEY = os.getenv('API_KEY_2')
 
@@ -48,18 +50,17 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
         clean_response = re.sub(r"^```.*\n|\n```$", "", raw_response).strip()
 
         if not clean_response:
-            raise ValueError("Empty response from Gemini API.")
+            raise HTTPException(status_code=400, detail="Empty response from Gemini API.")
         
         try:
             extracted_data = json.loads(clean_response)
         except json.JSONDecodeError as json_err:
-            print(f"JSON Decode Error: {json_err}. Response may not be valid JSON.")
-            raise
+            raise HTTPException(status_code=400, detail=f"JSON Decode Error: {str(json_err)}. Response may not be valid JSON.")
         
-    except (json.JSONDecodeError, ValueError) as e:
-        print(f"Error: {str(e)}. Falling back to manual extraction.")
+    except json.JSONDecodeError as json_err:
+        raise HTTPException(status_code=400, detail=f"JSON Decode Error: {str(json_err)}. Response may not be valid JSON.")
     except Exception as e:
-        print(f"Gemini API error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Gemini API error: {str(e)}")
 
     return extracted_data
 
