@@ -13,7 +13,7 @@ def verify_token(token : str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         if payload.get("user") != "nodejs-server":
-            raise HTTPException(status_code=403, detail=f"Invalid token: User must be {expected_user}")
+            raise HTTPException(status_code=403, detail=f"Invalid token")
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")

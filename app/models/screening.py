@@ -11,6 +11,7 @@ model_1 = SentenceTransformer("all-MiniLM-L6-v2")
 load_dotenv(override=True)  
 
 GEMINI_API_KEY = os.getenv('API_KEY_2') 
+THRESHOLD=os.getenv('threshold')
 
 if not GEMINI_API_KEY:
     raise ValueError("API_KEY not found in environment variables.")
@@ -65,8 +66,8 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
 
         ##Give the output in the following form : 
         "experience_match : True/False",
-        "Recommendation : Yes/No (if final score > 40 and experience match then Yes else No)",
-        "Give recommendation on the basis of the scores only (if final score > 40 then recommend else not)"
+        "Recommendation : Yes/No (if final score > `{THRESHOLD}` then recommend else not)",
+        "Give a brief concise feedback ni key value pair on why to select and why not to("Suggestion"),  mention the exact skills that mismatched in JD("JD Mismatch") and RCD mismatch("RCD Mismatch") (not in story form), the experience of the candidate and the required."
 
     """
     generation_config = {
@@ -109,7 +110,6 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
         jd_skill_score=jd_skill_score, 
         rcd_skill_score=rcd_skill_score
     )
-    
     Response = {
         "feedback" : feedback
     }
