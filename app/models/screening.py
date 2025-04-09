@@ -45,9 +45,9 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
         - If the candidate's experience **meets or exceeds** the required experience, set `"experience_match": True`, otherwise, set `"experience_match": False`.
 
         2. **Final Hiring Recommendation**:
-        - If **experience do not match**, give feedback: `"Not recommended for hiring as experience mismatch."`
+        - If **experience do not match**, give feedback mentioning this `
         - If **experience match**, assess the **final skill match score**:
-            - Give insights for the candidate.
+        - Give insights for the candidate based on the experience criteria and skills criteria.
 
         ### **Candidate & Job Details**:
         - **Required Job Title:** `{", ".join(jd_experience['title'])}`
@@ -64,10 +64,15 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
 
         ---
 
-        ##Give the output in the following form : 
-        "experience_match : True/False",
-        "Recommendation : Yes/No (if final score > `{THRESHOLD}` then recommend else not)",
-        "Give a brief concise feedback ni key value pair on why to select and why not to("Suggestion"),  mention the exact skills that mismatched in JD("JD Mismatch") and RCD mismatch("RCD Mismatch") (not in story form), the experience of the candidate and the required."
+        ##Give the output in the following form regardless of any match or mismatch : 
+         "experience_match": True/False,
+         "recommendation": Yes/No (if final score > `{THRESHOLD}` then recommend, else not),
+         "feedback": {"Suggestion"},
+         "jd_mismatch": "list of skills from JD that mismatch. Show this regardless of experience mismatch(If nothing found output "none") ",
+         "rcd_mismatch": "list of skills from RCD that mismatch. Show this regardless of experience mismatch (If nothing found output "none") ",
+         "jd_match": "list of skills from JD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none") ",
+         "rcd_match": "list of skills from RCD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none") ",
+         "experience_info": {"Candidate Experience : Candidate's experience mentioned in years", "Required Experience : required expierence mentioned in years"}"
 
     """
     generation_config = {
