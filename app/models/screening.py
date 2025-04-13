@@ -12,6 +12,8 @@ load_dotenv(override=True)
 
 GEMINI_API_KEY = os.getenv('API_KEY_2') 
 THRESHOLD=os.getenv('threshold')
+JD_WT = float(os.getenv('jd_wt'))
+RCD_WT = float(os.getenv('rcd_wt'))
 
 if not GEMINI_API_KEY:
     raise ValueError("API_KEY not found in environment variables.")
@@ -102,7 +104,7 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
 
     rcd_skill_score = (rcd_similarity_score_1 + rcd_similarity_score_2) / 2
 
-    final_score = (jd_skill_score * 0.5) + (rcd_skill_score * 0.5)
+    final_score = (jd_skill_score * (JD_WT)) + (rcd_skill_score * (RCD_WT))
     final_skill_match_percent = final_score * 100
 
     feedback = generate_dynamic_feedback(
