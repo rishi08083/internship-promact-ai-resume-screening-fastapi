@@ -36,13 +36,13 @@ class ScreenCandidateRequest(BaseModel):
 class ScreenCandidateResponse(BaseModel):
     status: str
     feedback: str|dict
-    JD_Skill_Match : float|int
-    RCD_Skill_Match : float|int
-    Combined_Score : float|int
+    jd_skill_match : float|int
+    rcd_skill_match : float|int
+    combined_score : float|int
     
 
 @router.post("/screen_candidates_2", response_model=ScreenCandidateResponse)
-async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depends(get_info)):
+async def screen_candidates(req: ScreenCandidateRequest, payload : dict = Depends(get_info)):
     try:
         jd = req.jd  # JD details
         rcd_file_key = req.rcd_file_key  # RCD file key from S3
@@ -105,9 +105,9 @@ async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depen
 
         response = ScreenCandidateResponse(
             status="success",
-            JD_Skill_Match=max(0, val['JD_Skill_Match']),
-            RCD_Skill_Match=max(0, val['RCD_Skill_Match']),
-            Combined_Score=max(0, val['Combined_Skill_Match']),
+            jd_skill_match=max(0, val['JD_Skill_Match']),
+            rcd_skill_match=max(0, val['RCD_Skill_Match']),
+            combined_score=max(0, val['Combined_Skill_Match']),
             feedback=val["feedback"]
         )
 

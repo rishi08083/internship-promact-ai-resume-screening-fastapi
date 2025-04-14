@@ -11,6 +11,9 @@ model_1 = SentenceTransformer("all-MiniLM-L6-v2")
 load_dotenv(override=True)  
 
 GEMINI_API_KEY = os.getenv('API_KEY_2') 
+THRESHOLD=os.getenv('threshold')
+JD_WT = float(os.getenv('jd_wt'))
+RCD_WT = float(os.getenv('rcd_wt'))
 
 if not GEMINI_API_KEY:
     raise ValueError("API_KEY not found in environment variables.")
@@ -44,9 +47,9 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
         - If the candidate's experience **meets or exceeds** the required experience, set `"experience_match": True`, otherwise, set `"experience_match": False`.
 
         2. **Final Hiring Recommendation**:
-        - If **experience do not match**, give feedback: `"Not recommended for hiring as experience mismatch."`
+        - If **experience do not match**, give feedback mentioning this `
         - If **experience match**, assess the **final skill match score**:
-            - Give insights for the candidate.
+        - Give insights for the candidate based on the experience criteria and skills criteria.
 
         ### **Candidate & Job Details**:
         - **Required Job Title:** `{", ".join(jd_experience['title'])}`
@@ -63,10 +66,15 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
 
         ---
 
-        ##Give the output in the following form : 
-        "experience_match : True/False",
-        "Recommendation : Yes/No (if final score > 40 and experience match then Yes else No)",
-        "Give recommendation on the basis of the scores only (if final score > 40 then recommend else not)"
+        ##Give the output in the following form regardless of any match or mismatch : 
+         "experience_match": True/False,
+         "recommendation": Yes/No (if final score > `{THRESHOLD}` then recommend, else not),
+         "feedback": {"Suggestion"},
+         "jd_mismatch": "list of skills from JD that mismatch. Show this regardless of experience mismatch(If nothing found output "none") ",
+         "rcd_mismatch": "list of skills from RCD that mismatch. Show this regardless of experience mismatch (If nothing found output "none") ",
+         "jd_match": "list of skills from JD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none") ",
+         "rcd_match": "list of skills from RCD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none") ",
+         "experience_info": {"Candidate Experience : Candidate's experience mentioned in years", "Required Experience : required expierence mentioned in years"}"
 
     """
     generation_config = {
@@ -96,7 +104,7 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
 
     rcd_skill_score = (rcd_similarity_score_1 + rcd_similarity_score_2) / 2
 
-    final_score = (jd_skill_score * 0.5) + (rcd_skill_score * 0.5)
+    final_score = (jd_skill_score * (JD_WT)) + (rcd_skill_score * (RCD_WT))
     final_skill_match_percent = final_score * 100
 
     feedback = generate_dynamic_feedback(
@@ -109,7 +117,6 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
         jd_skill_score=jd_skill_score, 
         rcd_skill_score=rcd_skill_score
     )
-    
     Response = {
         "feedback" : feedback
     }
