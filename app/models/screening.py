@@ -70,10 +70,10 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
          "experience_match": True/False,
          "recommendation": Yes/No (if final score > `{THRESHOLD}` then recommend, else not),
          "feedback": {"Suggestion"},
-         "jd_mismatch": "list of skills from JD that mismatch. Show this regardless of experience mismatch(If nothing found output "none") ",
-         "rcd_mismatch": "list of skills from RCD that mismatch. Show this regardless of experience mismatch (If nothing found output "none") ",
-         "jd_match": "list of skills from JD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none") ",
-         "rcd_match": "list of skills from RCD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none") ",
+         "jd_mismatch": "list of skills from JD that are not present in candidate's skills. Show this regardless of experience mismatch(If nothing found output "none"), also make sure that if a skill is present here it should not be present in matched section. ",
+         "rcd_mismatch": "list of skills from RCD that are not present in candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in matched section.",
+         "jd_match": "list of skills from JD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in mismatched section. ",
+         "rcd_match": "list of skills from RCD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in mismatched section. ",
          "experience_info": {"Candidate Experience : Candidate's experience mentioned in years", "Required Experience : required expierence mentioned in years"}"
 
     """
