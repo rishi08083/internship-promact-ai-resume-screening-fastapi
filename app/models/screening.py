@@ -72,8 +72,8 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
          "feedback": {"Suggestion"},
          "jd_mismatch": "list of skills from JD that are not present in candidate's skills. Show this regardless of experience mismatch(If nothing found output "none"), also make sure that if a skill is present here it should not be present in matched section. ",
          "rcd_mismatch": "list of skills from RCD that are not present in candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in matched section.",
-         "jd_match": "list of skills from JD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in mismatched section. ",
-         "rcd_match": "list of skills from RCD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in mismatched section. ",
+         "jd_match": "If JD Skill Match Score <= 0 output "none", else give a list of skills from JD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in mismatched section. ",
+         "rcd_match": "If RCD Skill Match Score <= 0 output "none", else give a list of skills from RCD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in mismatched section. ",
          "experience_info": {"Candidate Experience : Candidate's experience mentioned in years", "Required Experience : required expierence mentioned in years"}"
 
     """
@@ -103,9 +103,11 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
     rcd_similarity_score_2 = compute_rcd_similarity(data_skills, rcd_tot_skills['rcd_knowledge_areas'])
 
     rcd_skill_score = (rcd_similarity_score_1 + rcd_similarity_score_2) / 2
+    rcd_skill_percent = max(0, rcd_skill_score) * 100
+    jd_skill_percent = max(0, jd_skill_score) * 100
 
-    final_score = (jd_skill_score * (JD_WT)) + (rcd_skill_score * (RCD_WT))
-    final_skill_match_percent = final_score * 100
+
+    final_skill_match_percent = (jd_skill_percent * (JD_WT)) + (rcd_skill_percent * (RCD_WT))
 
     feedback = generate_dynamic_feedback(
         data_skills=data_skills, 
@@ -114,108 +116,17 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
         jd_experience=jd_experience, 
         parsed_rcd=rcd_tot_skills, 
         final_percent=final_skill_match_percent, 
-        jd_skill_score=jd_skill_score, 
-        rcd_skill_score=rcd_skill_score
+        jd_skill_score=jd_skill_percent, 
+        rcd_skill_score=rcd_skill_percent
     )
     Response = {
         "feedback" : feedback
     }
 
     Response.update({
-        "JD_Skill_Match" : jd_skill_score * 100,
-        "RCD_Skill_Match" : rcd_skill_score * 100 ,
+        "JD_Skill_Match" : jd_skill_percent,
+        "RCD_Skill_Match" : rcd_skill_percent,
         "Combined_Skill_Match" :  final_skill_match_percent
     })
 
     return Response
-
-
-if __name__ == '__main__':
-
-    candidate_exp = {
-        'title' : ['AI-ML Engineer', 'Software Developer - 1', 'Software Developer Intern'],
-        'experience' : "4 years"
-    }
-
-    cd_skills = [
-        "Python",
-        "R",
-        "SQL",
-        "TensorFlow",
-        "PyTorch",
-        "Scikit-Learn",
-        "Keras",
-        "Numpy",
-        "Pandas",
-        "Matplotlib",
-        "Seaborn",
-        "OpenCV",
-        "Natural Language Processing (NLP)",
-        "Transformers (Hugging Face, BERT, GPT)",
-        "Computer Vision",
-        "Deep Learning",
-        "Machine Learning Model Deployment",
-        "MLOps",
-        "AWS SageMaker",
-        "Google Cloud AI Platform",
-        "Microsoft Azure ML",
-        "Hyperparameter tuning and optimization",
-        "Feature engineering and selection",
-        "Data preprocessing and augmentation",
-        "Reinforcement Learning",
-        "Model Explainability (SHAP, LIME)",
-        "Big Data Processing (Hadoop, Spark)",
-        "Time Series Forecasting",
-        "A/B Testing and Experimentation",
-        "Recommendation Systems",
-        "Speech Recognition and Synthesis",
-        "Edge AI and TinyML",
-        "AutoML frameworks",
-        "Graph Neural Networks",
-        "Bayesian Inference and Probabilistic Models",
-        "Federated Learning",
-        "Model Compression and Quantization"
-    ]
-
-
-
-    jd_skills = """
-        Skills (Must Have): Deep understanding of AI/ML concepts, algorithms, and techniques, extensive experience in developing and implementing AI/ML models for various use cases, proficiency in programming languages commonly used in AI/ML, such as Python, hands-on experience with popular AI/ML frameworks and libraries (e.g., TensorFlow, PyTorch, Keras, scikit-learn), experience with data preprocessing, feature engineering, and model evaluation techniques, familiarity with Natural Language Processing (NLP) techniques and libraries (e.g., NLTK, spaCy, Transformers), comprehensive knowledge of Generative AI techniques and architectures (e.g., Transformer-based models, GANs, VAEs), experience with Large Language Models (LLMs) and their fine-tuning for specific tasks, understanding of Vector Databases and their applications in AI/ML (e.g., Faiss, Chroma, Azure Search, Elastic Search), experience with Retrieval-Augmented Generation (RAG) and its implementation using LLMs and Vector Databases, knowledge of Semantic Search and its implementation using embeddings and similarity measures, understanding of machine learning pipelines and MLOps practices, familiarity with cloud platforms (AWS, Azure, GCP) and their AI/ML offerings, strong problem-solving skills and ability to develop innovative solutions to complex AI/ML challenges, excellent communication and mentoring skills to effectively guide and collaborate with team members, bachelor's or master's degree in Computer Science, Data Science, or a related field, minimum of 3-4 years of experience in AI/ML development. Skills (Good to Have): Knowledge of computer vision and image processing techniques (OpenCV, Pillow, scikit-image), familiarity with pre-training techniques for LLMs (e.g., Masked Language Modeling, Next Sentence Prediction), knowledge of Chatbot development frameworks and platforms (e.g., Rasa, Dialogflow), familiarity with Entity Recognition and Extraction techniques (e.g., Named Entity Recognition, Relation Extraction), familiarity with experiment tracking and model versioning tools (MLflow, Weights & Biases), understanding of data privacy and security best practices in AI/ML development."""
-    
-    jd_exp = {
-        'title' : "software engineer - ii (ai/ml)",
-        'experience' : '3-5 years'
-    }
-
-    rcd_tot_skills = {
-        "rcd_skills":  [
-        "Communication skills",
-        "Understanding of appropriate methods, tools, applications, and processes",
-        "Creative thinking",
-        "Problem-solving",
-        "Knowledge absorption",
-        "Documentation"
-    ],
-        "rcd_knowledge_areas":  [
-        "AI/ML models",
-        "Generative AI",
-        "RAG",
-        "Chatbots",
-        "Object Detection",
-        "Semantic Searching",
-        "Entity Recognition",
-        "Data preprocessing",
-        "Feature engineering",
-        "Model evaluation",
-        "Organizational standards",
-        "AI/ML development and security",
-        "Model architecture",
-        "Data processing workflows",
-        "Experiment tracking",
-        "Technical implementation",
-        "Analysis"
-    ]
-    }
-
-    res = screen_candidate_and_generate_feedback(cd_skills, candidate_exp, jd_skills, jd_exp, rcd_tot_skills)
-    print(res)

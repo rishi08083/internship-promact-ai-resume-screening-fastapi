@@ -14,18 +14,18 @@ import json
 router = APIRouter()
 
 class CandidateExperience(BaseModel):
-    titles: List[str]                               # titles = ['SDE-1', 'SDE Intern', ...]
-    experience: str|int = Field(...)                # Experience = "6" or 6
+    titles: List[str]                               
+    experience: str|int = Field(...)                
 
 class Candidate(BaseModel):
-    skill : List[str]                               # Skills = ['Java', 'Python', ...]
-    experience : CandidateExperience                # CandidateExperience
+    skill : List[str]                              
+    experience : CandidateExperience                
 
 
 class JD(BaseModel):
-    title : str = Field(...)                        # Title = "AI-ML Engineer"
-    req_experience : str = Field(...)               # req_exp = "3-5 years"
-    req_skills : str = Field(...)                   # req_skills = "msfdefdmd...."
+    title : str = Field(...)                        
+    req_experience : str = Field(...)               
+    req_skills : str = Field(...)                   
 
 class ScreenCandidateRequest(BaseModel):
     jd: JD = Field(...)
@@ -42,14 +42,14 @@ class ScreenCandidateResponse(BaseModel):
     
 
 @router.post("/screen_candidates_2", response_model=ScreenCandidateResponse)
-async def screen_candidates(req: ScreenCandidateRequest, payload : dict = Depends(get_info)):
+async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depends(get_info)):
     try:
-        jd = req.jd  # JD details
-        rcd_file_key = req.rcd_file_key  # RCD file key from S3
-        candidate = req.candidate  # Candidate details
+        jd = req.jd  
+        rcd_file_key = req.rcd_file_key  
+        candidate = req.candidate  
 
         if not jd.req_skills:
-            raise HTTPException(status_code=400, detail="No JD skills provided.")
+            raise HTTPException(status_code=400, detail="No skills for JD provided.")
         if not rcd_file_key:
             raise HTTPException(status_code=400, detail="No RCD file key provided.")
         if not candidate.skill:
@@ -57,12 +57,12 @@ async def screen_candidates(req: ScreenCandidateRequest, payload : dict = Depend
         if not candidate.experience:
             raise HTTPException(status_code=404, detail="No candidate experience provided.")
 
-        candidate_skills = candidate.skill  # List of candidate skills
-        candidate_experience = candidate.experience  # Candidate experience details (titles, years)
+        candidate_skills = candidate.skill  
+        candidate_experience = candidate.experience 
 
-        jd_skills = extract_skills(jd.req_skills)               # Required JD skills in list
-        jd_title = jd.title                                     # Job title
-        jd_experience = jd.req_experience                       # Required JD experience
+        jd_skills = extract_skills(jd.req_skills)               
+        jd_title = jd.title                                     
+        jd_experience = jd.req_experience                       
         jd_exp = {
             'title' : jd_title,
             'experience' : jd_experience
@@ -80,12 +80,12 @@ async def screen_candidates(req: ScreenCandidateRequest, payload : dict = Depend
         rcd_text_cleaned = rcd_text.strip()
 
         if not rcd_text:
-            raise HTTPException(status_code=400, detail="RCD file is empty.")
+            raise HTTPException(status_code=400, detail="RCD file empty.")
 
         rcd_data = extract_rcd_info(rcd_text_cleaned)
         rcd_tot_skills = {
-            "rcd_skills": rcd_data["skills_required"],  # List[str]
-            "rcd_knowledge_areas": rcd_data["knowledge_areas"],  # List[str]
+            "rcd_skills": rcd_data["skills_required"],  
+            "rcd_knowledge_areas": rcd_data["knowledge_areas"],  
         }
 
         val = screen_candidate_and_generate_feedback(
@@ -105,9 +105,9 @@ async def screen_candidates(req: ScreenCandidateRequest, payload : dict = Depend
 
         response = ScreenCandidateResponse(
             status="success",
-            jd_skill_match=max(0, val['JD_Skill_Match']),
-            rcd_skill_match=max(0, val['RCD_Skill_Match']),
-            combined_score=max(0, val['Combined_Skill_Match']),
+            jd_skill_match=val['JD_Skill_Match'],
+            rcd_skill_match=val['RCD_Skill_Match'],
+            combined_score=val['Combined_Skill_Match'],
             feedback=val["feedback"]
         )
 
