@@ -72,8 +72,8 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
          "feedback": {"Suggestion"},
          "jd_mismatch": "list of skills from JD that are not present in candidate's skills. Show this regardless of experience mismatch(If nothing found output "none"), also make sure that if a skill is present here it should not be present in matched section. ",
          "rcd_mismatch": "list of skills from RCD that are not present in candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in matched section.",
-         "jd_match": "list of skills from JD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in mismatched section. ",
-         "rcd_match": "list of skills from RCD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in mismatched section. ",
+         "jd_match": "If JD Skill Match Score <= 0 output "none", else give a list of skills from JD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in mismatched section. ",
+         "rcd_match": "If RCD Skill Match Score <= 0 output "none", else give a list of skills from RCD that Match with candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in mismatched section. ",
          "experience_info": {"Candidate Experience : Candidate's experience mentioned in years", "Required Experience : required expierence mentioned in years"}"
 
     """
@@ -103,9 +103,11 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
     rcd_similarity_score_2 = compute_rcd_similarity(data_skills, rcd_tot_skills['rcd_knowledge_areas'])
 
     rcd_skill_score = (rcd_similarity_score_1 + rcd_similarity_score_2) / 2
+    rcd_skill_percent = max(0, rcd_skill_score) * 100
+    jd_skill_percent = max(0, jd_skill_score) * 100
 
-    final_score = (jd_skill_score * (JD_WT)) + (rcd_skill_score * (RCD_WT))
-    final_skill_match_percent = final_score * 100
+
+    final_skill_match_percent = (jd_skill_percent * (JD_WT)) + (rcd_skill_percent * (RCD_WT))
 
     feedback = generate_dynamic_feedback(
         data_skills=data_skills, 
@@ -114,16 +116,16 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
         jd_experience=jd_experience, 
         parsed_rcd=rcd_tot_skills, 
         final_percent=final_skill_match_percent, 
-        jd_skill_score=jd_skill_score, 
-        rcd_skill_score=rcd_skill_score
+        jd_skill_score=jd_skill_percent, 
+        rcd_skill_score=rcd_skill_percent
     )
     Response = {
         "feedback" : feedback
     }
 
     Response.update({
-        "JD_Skill_Match" : jd_skill_score * 100,
-        "RCD_Skill_Match" : rcd_skill_score * 100 ,
+        "JD_Skill_Match" : jd_skill_percent,
+        "RCD_Skill_Match" : rcd_skill_percent,
         "Combined_Skill_Match" :  final_skill_match_percent
     })
 
