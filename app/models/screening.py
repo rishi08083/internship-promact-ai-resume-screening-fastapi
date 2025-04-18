@@ -19,8 +19,13 @@ if not GEMINI_API_KEY:
     raise ValueError("API_KEY not found in environment variables.")
 
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-2.0-flash')
-
+model = genai.GenerativeModel(
+    'gemini-2.0-flash', 
+    generation_config=genai.GenerationConfig(
+        temperature=0,      
+        top_k=1
+    )
+)
 def compute_bert_similarity(data_skills, jd_skills):
     embeddings = model_1.encode([data_skills, jd_skills], convert_to_tensor=True)  
     similarity = util.pytorch_cos_sim(embeddings[0], embeddings[1]).item()
@@ -77,11 +82,8 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
          "experience_info": {"Candidate Experience : Candidate's experience mentioned in years", "Required Experience : required expierence mentioned in years"}"
 
     """
-    generation_config = {
-        "temperature": 0
-    }
 
-    response = model.generate_content(prompt2, generation_config=generation_config)
+    response = model.generate_content(prompt2)
     
     feedback_text = response.text.strip()
 

@@ -15,8 +15,13 @@ if not GEMINI_API_KEY:
     raise ValueError("API_KEY not found in environment variables.")
 
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-2.0-flash')
-
+model = genai.GenerativeModel(
+    'gemini-2.0-flash', 
+    generation_config=genai.GenerationConfig(
+        temperature=0,      
+        top_k=1
+    )
+)
 
 def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
     prompt = f'''
@@ -41,11 +46,7 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
 
     try:
         
-        generation_config = {
-            "temperature": 0
-        }
-
-        response = model.generate_content(prompt, generation_config=generation_config)
+        response = model.generate_content(prompt)
         raw_response = response.text.strip()
         clean_response = re.sub(r"^```.*\n|\n```$", "", raw_response).strip()
 

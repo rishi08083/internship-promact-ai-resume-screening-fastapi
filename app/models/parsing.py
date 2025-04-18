@@ -17,8 +17,13 @@ if not GEMINI_API_KEY:
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-model = genai.GenerativeModel('gemini-2.0-flash')
-
+model = genai.GenerativeModel(
+    'gemini-2.0-flash',  # Updated to newer model
+    generation_config=genai.GenerationConfig(
+        temperature=0,      
+        top_k=1
+    )
+)
 def parse_resume_text(resume_txt : str):
     prompt = """
     You are an expert resume parser. Parse the following resume text and return the result as a valid JSON string:
@@ -62,11 +67,7 @@ def parse_resume_text(resume_txt : str):
     }
 
     try:
-        generation_config = {
-            "temperature": 0
-        }
-
-        response = model.generate_content(prompt, generation_config=generation_config)
+        response = model.generate_content(prompt)
         cleaned_response = re.sub(r"```json\s*|\s*```", "", response.text).strip()
         parsed_data = json.loads(cleaned_response)
 
