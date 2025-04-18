@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.post("/parse_pdf_resume")
-async def parse_pdf_resume(file_key : str, payload : dict = Depends(get_info)):
+async def parse_pdf_resume(file_key : str):
     try:
         file_content = download_from_s3_to_buffer(file_key)
         if not file_content:
@@ -33,7 +33,7 @@ async def parse_pdf_resume(file_key : str, payload : dict = Depends(get_info)):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/parse_doc_resume")
-async def parse_doc_resume(file_key : str,  payload : dict = Depends(get_info)):
+async def parse_doc_resume(file_key : str):
     try:
         file_content = download_from_s3_to_buffer(file_key)
         if not file_content:
@@ -55,7 +55,7 @@ async def parse_doc_resume(file_key : str,  payload : dict = Depends(get_info)):
         raise HTTPException(status_code=400, detail=f"DOCX processing failed: {str(e)}")
 
 @router.post("/parse_image_resume")
-async def parse_image_resume(file_key : str,  payload : dict = Depends(get_info)):
+async def parse_image_resume(file_key : str):
     try:
         file_content = download_from_s3_to_buffer(file_key)
         if not file_content:
