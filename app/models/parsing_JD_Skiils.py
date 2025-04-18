@@ -13,8 +13,17 @@ if not GEMINI_API_KEY:
     raise ValueError("API_KEY not found in environment variables.")
 
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-2.0-flash')
+generation_config = {
+    "temperature": 0,          
+    "top_p": 0.95,            
+    "top_k": 1,               
+    "max_output_tokens": 8192
+}
 
+model = genai.GenerativeModel(
+  model_name="gemini-2.0-flash",
+  generation_config=generation_config,
+)
 def extract_skills(rcd_text: str) -> List[str]: 
     prompt = f"""
     You are an expert AI job description parser. Extract all **skills** mentioned in the given text.
@@ -33,12 +42,8 @@ def extract_skills(rcd_text: str) -> List[str]:
     extracted_skills = []
 
     try:
-        generation_config = {
-            "temperature": 0,
-            "top_p": 1
-        }
-
-        response = model.generate_content(prompt, generation_config=generation_config)
+        
+        response = model.generate_content(prompt)
         clean_response = response.text.strip()
 
         if not clean_response:

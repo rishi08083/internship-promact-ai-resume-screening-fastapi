@@ -19,8 +19,17 @@ if not GEMINI_API_KEY:
     raise ValueError("API_KEY not found in environment variables.")
 
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-2.0-flash')
+generation_config = {
+    "temperature": 0,          
+    "top_p": 0.95,            
+    "top_k": 1,               
+    "max_output_tokens": 8192
+}
 
+model = genai.GenerativeModel(
+  model_name="gemini-2.0-flash",
+  generation_config=generation_config,
+)
 # def compute_bert_similarity(data_skills, jd_skills):
 #     embeddings = model_1.encode([data_skills, jd_skills], convert_to_tensor=True)  
 #     similarity = util.pytorch_cos_sim(embeddings[0], embeddings[1]).item()

@@ -17,7 +17,17 @@ if not GEMINI_API_KEY:
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-model = genai.GenerativeModel('gemini-2.0-flash')
+generation_config = {
+    "temperature": 0,          
+    "top_p": 0.95,            
+    "top_k": 1,               
+    "max_output_tokens": 8192
+}
+
+model = genai.GenerativeModel(
+  model_name="gemini-2.0-flash",
+  generation_config=generation_config,
+)
 
 def parse_resume_text(resume_txt : str):
     prompt = """
@@ -62,12 +72,7 @@ def parse_resume_text(resume_txt : str):
     }
 
     try:
-        generation_config = {
-            "temperature": 0,
-            "top_p": 1
-        }
-
-        response = model.generate_content(prompt, generation_config=generation_config)
+        response = model.generate_content(prompt)
         cleaned_response = re.sub(r"```json\s*|\s*```", "", response.text).strip()
         parsed_data = json.loads(cleaned_response)
 
