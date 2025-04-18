@@ -96,12 +96,7 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
          "experience_info": {"Candidate Experience : Candidate's experience mentioned in years", "Required Experience : required expierence mentioned in years"}"
     """
 
-    generation_config = {
-        "temperature": 0,
-        "top_p": 1
-    }   
-
-    response = model.generate_content(prompt2, generation_config=generation_config)
+    response = model.generate_content(prompt2)
     
     feedback_text = response.text.strip()
 
