@@ -46,6 +46,13 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
                             #    final_percent, jd_skill_score, rcd_skill_score
                                ):
 
+
+    # skills = [skill.lower() for skill in data_skills]
+    # jd_skills = [skill.lower() for skill in jd_skills]
+    # rcd_skills = [skill.lower() for skill in parsed_rcd['rcd_skills']]
+    # print('Skills ->',skills)
+    # print('JD Skills ->',jd_skills) 
+    # print('RCD Skills ->',rcd_skills)
     prompt2 = f"""
         You are an AI recruitment assistant. Your task is to evaluate whether a candidate is a good fit for a job based 
         on their job experience and skill match. Calculate the skill match scores yourself and return your feedback in JSON format. 
@@ -55,10 +62,19 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
         1. Experience Match:
         - Compare the minimum experience required in the job description with the candidate's total years of experience.
         - The candidate must have equal to or more experience than required.
-        - If the candidate's experience meets or exceeds the required experience, set `"experience_match": True`, otherwise, set `"experience_match": False`.
+        - If the candidate's experience meets or exceeds the required experience, set "experience_match": True, otherwise, set "experience_match": False.
 
         2. **Skill Match Evaluation**:
         - Compare the candidate's skills with both the Job Description (JD) required skills and Role Clarity Description (RCD) required skills.
+        - Identify the skills in resume that match and those that do not match with Job Description (JD) required skills and Role Clarity Description (RCD) required skills.
+        - If a skill is present in the candidate's skills, and also in Job Description (JD) required skills and Role Clarity Description (RCD), then it is considered a match.
+        - Check the semantic similarity between the candidate's skills and the JD/RCD required skills.
+        - Consider the following examples for semantic matching:
+            - If the Job Description (JD) and Role Clarity Description (RCD) requires "Java" and the candidate has "JavaScript", it is not a match.
+            - If the Job Description (JD) and Role Clarity Description (RCD) requires "Data Analysis" and the candidate has "Data Analytics", it is a match.
+            - If the Job Description (JD) and Role Clarity Description (RCD) requires "AI/ML" OR "AI&ML" and the candidate has "ML" or "Machine learning" or "feature engineering", these all are match.
+            - If the Job Description (JD) and Role Clarity Description (RCD) requires "Cloud Computing" and the candidate has "AWS", it is a match.
+        - For each skill in the JD and RCD, check if it is present in the candidate's skills.
         - Calculate two separate match percentages:
           * JD Skill Match Score: percentage of JD required skills that match the candidate's skills
           * RCD Skill Match Score: percentage of RCD required skills that match the candidate's skills
@@ -67,18 +83,18 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
         3. **Final Hiring Recommendation**:
         - If **experience does not match**, give feedback mentioning this.
         - If **experience matches**, assess the **final skill match score**:
-          * Recommend "Yes" if the Final Skill Match Score is greater than `{THRESHOLD}%`
-          * Recommend "No" if the Final Skill Match Score is equal to or less than `{THRESHOLD}%`
+          * Recommend "Yes" if the Final Skill Match Score is greater than {THRESHOLD}%
+          * Recommend "No" if the Final Skill Match Score is equal to or less than {THRESHOLD}%
         - Give insights for the candidate based on the experience criteria and skills criteria.
 
         ### **Candidate & Job Details**:
-        - **Required Job Title:** `{", ".join(jd_experience['title'])}`
+        - **Required Job Title:** {", ".join(jd_experience['title'])}
         - **Candidate's Previous Job Titles:** {", ".join(data_experience['titles'])}
-        - **Required Experience:** `{jd_experience['experience']} years`
-        - **Candidate's Total Experience:** `{data_experience['experience']} years`
-        - **Job Description Required Skills:** `{jd_skills}`
-        - **Candidate Skills:** `{", ".join(data_skills)}`
-        - **Role Clarity Description Required Skills:** `{parsed_rcd}`
+        - **Required Experience:** {jd_experience['experience']} years
+        - **Candidate's Total Experience:** {data_experience['experience']} years
+        - **Job Description Required Skills:** {jd_skills}
+        - **Candidate Skills:** {", ".join(data_skills)}
+        - **Role Clarity Description Required Skills:** {parsed_rcd}
 
         ---
 
@@ -87,7 +103,7 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
          "jd_skill_score": "calculated percentage match for JD skills(Strip the percentage Symbol)",
          "rcd_skill_score": "calculated percentage match for RCD skills(Strip the percentage Symbol)",
          "final_skill_score": "average of jd_skill_score and rcd_skill_score(Strip the percentage Symbol)",
-         "recommendation": Yes/No (if final_skill_score > `{THRESHOLD}` then recommend, else not),
+         "recommendation": Yes/No (if final_skill_score > {THRESHOLD} then recommend, else not),
          "feedback": {"Suggestion"},
          "jd_mismatch": "list of skills from JD that are not present in candidate's skills. Show this regardless of experience mismatch(If nothing found output "none"), also make sure that if a skill is present here it should not be present in matched section. ",
          "rcd_mismatch": "list of skills from RCD that are not present in candidate's skills. Show this regardless of experience mismatch (If nothing found output "none"), also make sure that if a skill is present here it should not be present in matched section.",
@@ -96,6 +112,7 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
          "experience_info": {"Candidate Experience : Candidate's experience mentioned in years", "Required Experience : required expierence mentioned in years"}"
     """
 
+    # print('Screening ->',jd_skills)
     response = model.generate_content(prompt2)
     
     feedback_text = response.text.strip()
@@ -143,5 +160,5 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
     #     "RCD_Skill_Match" : rcd_skill_percent,
     #     "Combined_Skill_Match" :  final_skill_match_percent
     # })
-
+    print('Response:',Response)
     return Response
