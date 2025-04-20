@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 import json
 from fastapi import HTTPException
+from .trace_screening import generate_dynamic_feedback_2
 
 
 # model_1 = SentenceTransformer("all-MiniLM-L6-v2")
@@ -124,24 +125,25 @@ def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skil
 
     # final_skill_match_percent = (jd_skill_percent * (JD_WT)) + (rcd_skill_percent * (RCD_WT))
 
-    feedback = generate_dynamic_feedback(
-        data_skills=data_skills, 
-        data_experience=data_experience, 
-        jd_skills=jd_skills, 
-        jd_experience=jd_experience, 
-        parsed_rcd=rcd_tot_skills, 
-        # final_percent=final_skill_match_percent, 
-        # jd_skill_score=jd_skill_percent, 
-        # rcd_skill_score=rcd_skill_percent
-    )
-    Response = {
-        "feedback" : feedback
-    }
+    try:
+        feedback = generate_dynamic_feedback_2(
+            data_skills=data_skills, 
+            data_experience=data_experience, 
+            jd_skills=jd_skills, 
+            jd_experience=jd_experience, 
+            parsed_rcd=rcd_tot_skills
+        )
+        
+        
+        return {
+            "status": "success",
+            "feedback": feedback
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Screening failed: {str(e)}",
+            "error": {"details": str(e)}
+        }
 
-    # Response.update({
-    #     "JD_Skill_Match" : jd_skill_percent,
-    #     "RCD_Skill_Match" : rcd_skill_percent,
-    #     "Combined_Skill_Match" :  final_skill_match_percent
-    # })
-
-    return Response

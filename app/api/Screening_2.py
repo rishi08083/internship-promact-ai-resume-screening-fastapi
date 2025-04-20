@@ -42,7 +42,7 @@ class ScreenCandidateResponse(BaseModel):
     
 
 @router.post("/screen_candidates_2", response_model=ScreenCandidateResponse)
-async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depends(get_info)):
+async def screen_candidates(req: ScreenCandidateRequest, payload : dict = Depends(get_info)):
     try:
         jd = req.jd  
         rcd_file_key = req.rcd_file_key  
@@ -99,16 +99,17 @@ async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depen
             rcd_tot_skills=rcd_tot_skills
         )
 
-        feedback_list = json.loads(val['feedback'].replace("\n", ""))
+        if val["status"] == "error":
+            raise HTTPException(status_code=400, detail=val["message"])
 
-        val['feedback'] = feedback_list
-
+        feedback_data = val["feedback"]
+        
         response = ScreenCandidateResponse(
             status="success",
-            jd_skill_match=int(val['feedback']['jd_skill_score']),
-            rcd_skill_match=int(val['feedback']['rcd_skill_score']),
-            combined_score=int(val['feedback']['final_skill_score']),
-            feedback=val["feedback"]
+            jd_skill_match=int(feedback_data['jd_skill_score']),
+            rcd_skill_match=int(feedback_data['rcd_skill_score']),
+            combined_score=int(feedback_data['final_skill_score']),
+            feedback=feedback_data
         )
 
         return response
