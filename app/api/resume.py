@@ -1,16 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.services.file_handler import extract_text_from_pdf
-from app.services.doc_handler import extract_text_from_doc
+# from app.services.file_handler import extract_text_from_pdf
+# from app.services.doc_handler import extract_text_from_doc
 from app.services.ocr_handler import extract_text_from_image
 from app.models.parsing import parse_resume_text
 from app.services.download_file import download_from_s3_to_buffer
 from app.services.auth import get_info
+from app.services.file_handler_unstructured import extract_text_from_pdf
+from app.services.docx_handler_unstrucuted import extract_text_from_doc
 
 router = APIRouter()
 
 
 @router.post("/parse_pdf_resume")
-async def parse_pdf_resume(file_key : str, payload : dict = Depends(get_info)):
+async def parse_pdf_resume(file_key : str,  payload : dict = Depends(get_info)):
     try:
         file_content = download_from_s3_to_buffer(file_key)
         if not file_content:
@@ -43,7 +45,7 @@ async def parse_doc_resume(file_key : str,  payload : dict = Depends(get_info)):
         if file_extension != "docx":
             raise HTTPException(status_code=400, detail="Unsupported file format. Only .docx is supported.")
         
-        extracted_text = extract_text_from_doc(file_content, file_extension)
+        extracted_text = extract_text_from_doc(file_content)
         parsed_data = parse_resume_text(extracted_text)
 
         if not all([parsed_data.get("name"), parsed_data.get("email"), parsed_data.get("phone"), parsed_data.get("skills")]):
