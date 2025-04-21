@@ -61,9 +61,9 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
             "jd_match": ["list"],
             "rcd_match": ["list"],
             "experience_info": {{
-                "Candidate Experience": "string",
-                "Required Experience": "string",
-                "Experience Range Check": "string"
+                "candidate_experience": "string",
+                "required_experience": "string",
+                "experience_range_check": "string"
             }}
         }}
 
@@ -77,7 +77,7 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
         - If single number (e.g., "5+ years"):
             - Match if candidate meets or exceeds
         - Set "experience_match" True/False accordingly
-        - Include range interpretation in "experience_info" (Eg : exceeds requirement, meets requirements, falls short - all in small case)
+        - Include range interpretation in "experience_info" (Eg : 'meets', 'exceeds', 'below' - all in small case)
 
         2. Skill Matching:
         - Compare candidate skills with both JD and RCD skills
