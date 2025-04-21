@@ -24,19 +24,29 @@ model = genai.GenerativeModel(
   model_name="gemini-2.0-flash",
   generation_config=generation_config,
 )
-def extract_skills(rcd_text: str) -> List[str]: 
+def extract_skills(jd_text: str) -> List[str]: 
     prompt = f"""
-    You are an expert AI job description parser. Extract all **skills** mentioned in the given text.
+    You are an expert technical skills extractor. Analyze the following job description and extract ALL:
+    - Programming languages (expand abbreviations like "JS" → "JavaScript")
+    - Frameworks/libraries (expand like "TF" → "TensorFlow")
+    - Tools/platforms (expand like "GCP" → "Google Cloud Platform")
+    - Technical methodologies
+    - Required technical knowledge areas
 
-    Return the skills **as a single line, comma-separated string**.
-    
+    Return ONLY a single line of comma-separated values with these rules:
+    1. Expand all abbreviations to full names
+    2. Group similar technologies (e.g., "AWS/Azure/GCP" → "AWS, Azure, Google Cloud Platform")
+    3. Include proficiency levels when specified (e.g., "advanced Python")
+    4. Standardize terms (use "React.js" not "ReactJS")
+    5. Exclude non-technical skills and generic terms
+    6. Remove duplicates but keep variations with different specificity
+    7. Maintain original capitalization for proper nouns
+
     Example Output:
-    Python programming, Experience with TensorFlow, Knowledge of NLP techniques, Cloud platforms (AWS, Azure, GCP)
+    Python, JavaScript, TensorFlow, Amazon Web Services, Microsoft Azure, Google Cloud Platform, Natural Language Processing, Docker, Kubernetes
 
-    Do not include any extra text, explanations, or formatting.
-
-    RCD text:
-    {rcd_text}
+    Input Text:
+    {jd_text}
     """
 
     extracted_skills = []

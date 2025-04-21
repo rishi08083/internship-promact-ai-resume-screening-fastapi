@@ -35,11 +35,8 @@ def parse_resume_text(resume_txt : str):
     - name (string): The candidate's full name
     - email (string): The candidate's email address
     - phone (string): The candidate's phone number (e.g., "+1-123-456-7890", "123-456-7890", or "+91-9876543210")
-    - skills (list of strings): List of technical or soft skills mentioned. Additionally, include detailed descriptions of work done at any company (if mentioned), such as:
-        - Projects developed or implemented
+    - skills (list of strings): Combined list of all skills (from skills section and experience) (if mentioned), such as:
         - Technologies and tools used
-        - Responsibilities undertaken
-        - Contributions and impact made
         - Any automation, optimization, or significant improvements introduced
     - experience (list of objects): Each object contains:
         - company (string): Name of the company
@@ -52,6 +49,20 @@ def parse_resume_text(resume_txt : str):
         - start_date (string): Start date of the degree/college (format: YYYY-MM)
         - end_date (string): End date of the degree/college (format: YYYY-MM or "Present")
     - locations (list of strings): List of locations mentioned (e.g., cities, countries)
+
+    
+    Processing Rules:
+        1. For skills:
+        - Combine all skills from dedicated skills section AND work experience/projects
+        - Remove duplicates
+        - Keep complete skill names including the libraries used. (don't break into sub-components)
+        - Include both technical and soft skills
+        - Sort alphabetically for consistency
+
+        2. For experience:
+        - Parse both the job metadata and detailed descriptions
+        - Extract technologies/tools used from project/role descriptions
+        - Include all technologies in the main skills list
 
     Ensure the output is a valid JSON string.
     If a field is missing, use null for strings or an empty list for arrays.

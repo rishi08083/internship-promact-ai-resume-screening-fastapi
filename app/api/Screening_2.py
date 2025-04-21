@@ -42,7 +42,7 @@ class ScreenCandidateResponse(BaseModel):
     
 
 @router.post("/screen_candidates_2", response_model=ScreenCandidateResponse)
-async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depends(get_info)):
+async def screen_candidates(req: ScreenCandidateRequest):
     try:
         jd = req.jd  
         rcd_file_key = req.rcd_file_key  
@@ -84,8 +84,8 @@ async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depen
 
         rcd_data = extract_rcd_info(rcd_text_cleaned)
         rcd_tot_skills = {
-            "rcd_skills": rcd_data["skills_required"],  
-            "rcd_knowledge_areas": rcd_data["knowledge_areas"],  
+            "rcd_tech_skills": rcd_data["technical_skills"],  
+            "rcd_soft_skills": rcd_data["soft_skills"],  
         }
 
         val = screen_candidate_and_generate_feedback(
