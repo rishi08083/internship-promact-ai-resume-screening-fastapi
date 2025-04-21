@@ -35,7 +35,7 @@ def parse_resume_text(resume_txt : str):
     - name (string): The candidate's full name
     - email (string): The candidate's email address
     - phone (string): The candidate's phone number (e.g., "+1-123-456-7890", "123-456-7890", or "+91-9876543210")
-    - skills (list of strings): Combined list of all skills (from skills section and experience) (if mentioned), such as:
+    - skills (list of strings): Combined list of all skills as it is given(from skills section and experience) (if mentioned), such as:
         - Technologies and tools used
         - Any automation, optimization, or significant improvements introduced
     - experience (list of objects): Each object contains:

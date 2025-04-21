@@ -29,7 +29,7 @@ model = genai.GenerativeModel(
 
 def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
     prompt = f"""
-    You are an expert skills extractor. Analyze the provided Role Clarity Document and return exactly two lists:
+    You are an expert skills extractor. Analyze the provided Role Clarity Document and return exactly two lists of skills as it is:
 
         1. TECHNICAL SKILLS: All hard skills, tools, and technologies required for this role. Separate the combined terms.
         2. SOFT SKILLS: All interpersonal and business skills required for this role

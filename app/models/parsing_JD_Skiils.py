@@ -26,7 +26,7 @@ model = genai.GenerativeModel(
 )
 def extract_skills(jd_text: str) -> List[str]: 
     prompt = f"""
-    You are an expert technical skills extractor. Analyze the following job description and extract ALL:
+    You are an expert technical skills extractor. Analyze the following job description and extract all skills as it is:
     - Programming languages (expand abbreviations like "JS" → "JavaScript")
     - Frameworks/libraries (expand like "TF" → "TensorFlow")
     - Tools/platforms (expand like "GCP" → "Google Cloud Platform")
