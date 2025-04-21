@@ -35,28 +35,29 @@ def parse_resume_text(resume_txt : str):
     - name (string): The candidate's full name
     - email (string): The candidate's email address
     - phone (string): The candidate's phone number (e.g., "+1-123-456-7890", "123-456-7890", or "+91-9876543210")
-    - skills (list of strings): Combined list of all skills as it is given(from skills section and experience) (if mentioned), such as:
-        - Technologies and tools used
-        - Any automation, optimization, or significant improvements introduced
+    - skills (list of strings): Combined list of all skills(from skills section and experience/projects, but avoid including the project names) (if mentioned), such as:
+        + tools, technologies and libraries used to develop projects (don't give the full statement, only give technologies and libraries used in it, also avoid including the project name)
+        + Any automation, optimization, or significant improvements introduced
     - experience (list of objects): Each object contains:
-        - company (string): Name of the company
-        - job_title (string): Job title
-        - start_date (string): Start date of the job (format: YYYY-MM)
-        - end_date (string): End date of the job (format: YYYY-MM or "Present")
+        + company (string): Name of the company
+        + job_title (string): Job title
+        + start_date (string): Start date of the job (format: YYYY-MM)
+        + end_date (string): End date of the job (format: YYYY-MM or "Present")
     - education (list of objects): Each object contains:
-        - College (string): Name of the college
-        - Degree (string): Degree title
-        - start_date (string): Start date of the degree/college (format: YYYY-MM)
-        - end_date (string): End date of the degree/college (format: YYYY-MM or "Present")
-    - locations (list of strings): List of locations mentioned (e.g., cities, countries)
+        + College (string): Name of the college
+        + Degree (string): Degree title
+        + start_date (string): Start date of the degree/college (format: YYYY-MM)
+        + end_date (string): End date of the degree/college (format: YYYY-MM or "Present")
+    - locations (list of strings): List of locations mentioned (e.g., cities, countries). Also make it semantically correct.
 
     
     Processing Rules:
         1. For skills:
-        - Combine all skills from dedicated skills section AND work experience/projects
-        - Remove duplicates
+        - Combine all skills from dedicated skills section AND the tools and technologies used in work experience/projects section.
+        - Remove duplicates and any inconsistencies.
+        - Maintain the coherence.
         - Keep complete skill names including the libraries used. (don't break into sub-components)
-        - Include both technical and soft skills
+        - Include both technical and soft skills make sure it is semantically and logically correct.
         - Sort alphabetically for consistency
 
         2. For experience:

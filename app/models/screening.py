@@ -47,7 +47,8 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
                                ):
 
     prompt2 = f"""
-        You are an AI recruitment assistant. Evaluate candidate fit based on experience range and skill matching. Return results in this exact JSON format:
+        You are an AI recruitment assistant. Evaluate candidate fit based on experience range and skill matching. 
+        Return results in this exact JSON format:
 
         {{
             "experience_match": boolean,
@@ -82,9 +83,10 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
         2. Skill Matching:
         - Compare candidate skills with both JD and RCD skills
         - For each skill list (JD/RCD):
-        - Calculate match percentage (number of matches/total skills)
+        - Calculate match percentage of the resume with the JD and RCD.
         - Create separate match/mismatch lists
-        - Ensure no skill appears in both match and mismatch and also if a skill is in JD match, that should be also there in RCD match if in RCD.
+        - Ensure no skill appears in both match and mismatch and also if a skill is in JD match, that should be 
+          also there in RCD match if in RCD.
         - Handle synonyms (e.g., "Python" matches "Python 3.8")
         - Expand abbreviations consistently
 
