@@ -56,9 +56,12 @@ def parse_resume_text(resume_txt : str):
         - Combine all skills from dedicated skills section AND the tools and technologies used in work experience/projects section.
         - Remove duplicates and any inconsistencies.
         - Maintain the coherence.
-        - Keep complete skill names including the libraries used. (don't break into sub-components)
+        - Keep complete skill names including the libraries used. (don't break into sub-components).
         - Include both technical and soft skills make sure it is semantically and logically correct.
-        - Sort alphabetically for consistency
+        - Expand abbreviations for all abbreviated skills.
+        - Standardize terms to common industry names.
+        - Maintain original capitalization for proper nouns.
+        - Sort alphabetically for consistency.
 
         2. For experience:
         - Parse both the job metadata and detailed descriptions

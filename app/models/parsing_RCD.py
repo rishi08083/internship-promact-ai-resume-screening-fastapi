@@ -42,11 +42,11 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
 
         Extraction Rules:
         1. For TECHNICAL SKILLS:
-        - Include all programming languages, frameworks, libraries, and tools
-        - Expand abbreviations (e.g., "RAG" → "Retrieval-Augmented Generation")
-        - Include specific techniques mentioned (e.g., "Entity Recognition")
-        - Include development practices (e.g., "code reviews")
-        - Include any mentioned platforms or cloud services
+        - Include all programming languages, frameworks, libraries, and tools.
+        - Expand abbreviations for all abbreviated skills (For example if mentioned something like "RAG" then change it to "Retrieval-Augmented Generation").
+        - Include specific techniques mentioned.
+        - Include development practices if mentioned.
+        - Include any mentioned platforms or cloud services.
 
         2. For SOFT SKILLS:
         - Include communication, collaboration, and leadership requirements

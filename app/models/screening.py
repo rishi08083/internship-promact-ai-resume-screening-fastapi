@@ -81,19 +81,43 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
         - Include range interpretation in "experience_info" (Eg : 'meets', 'exceeds', 'below' - all in small case)
 
         2. Skill Matching:
-        - Compare candidate skills with both JD and RCD skills
-        - For each skill list (JD/RCD):
-        - Calculate match percentage of the resume with the JD and RCD.
-        - Create separate match/mismatch lists
-        - Ensure no skill appears in both match and mismatch and also if a skill is in JD match, that should be 
-          also there in RCD match if in RCD.
-        - Handle synonyms (e.g., "Python" matches "Python 3.8")
-        - Expand abbreviations consistently
+        - Perform two types of matching for 'Candidate Skills' (provided) with: a) 'JD Skills' (provided): Identify matching skills between candidate skills and JD skills. b) 'RCD Skills' (contains technical_skills and soft_skills lists): Match candidate skills with both technical and soft skills, then compute an aggregate RCD score.
+        - Matching Logic:
+            - Exact Match: Skills match exactly (case-insensitive, e.g., "Python" matches "python").
+            - Partial Match: Skills with version differences (e.g., "Python" matches "Python 3.8") count as 0.8 of a match.
+            - Synonym Match: Use a synonym map (e.g., "React" matches "React.js", "AWS" matches "Amazon Web Services").
+            - Fuzzy Match: Near-matches (e.g., "NodeJS" vs. "Node.js") with similarity >90% count as 0.9 of a match.
+            - Weighted Matching: If JD/RCD specifies critical skills (e.g., marked as "must-have"), assign double weight to matches/mismatches.
+            - Combined Terms: Handle skills like "AWS Lambda" as distinct from "AWS" but allow partial credit (0.5) if only "AWS" is matched.
+
+        - For JD Skills:
+            -Compare candidate skills against JD skills.
+            -Track matches and mismatches, ensuring no skill appears in both.
+
+        - For RCD Skills:
+            - Match candidate skills against technical_skills and soft_skills separately.
+            - Aggregate score: (0.7 * technical_skill_match_percentage) + (0.3 * soft_skill_match_percentage).
+            - Ensure skills matched in JD are also marked as matched in RCD if present.
+    
+        - Create separate match/mismatch lists for JD and RCD:
+            - Mismatch lists highlight missing critical skills first.
+            - Use "none" for empty mismatch lists.
+
+        - Expand abbreviations consistently across all comparisons (e.g., "JS" → "JavaScript").
 
         3. Scoring:
-        - jd_skill_score: % of JD skills matched (0-100)
-        - rcd_skill_score: % of RCD skills matched (0-100)
-        - final_skill_score: average of above two
+
+        - jd_skill_score:
+            - Calculate as (sum of match weights / sum of total weights) * 100.
+            - Exact match = 1.0, partial match = 0.8, fuzzy match = 0.9, critical skill match = 2.0.
+
+
+        - rcd_skill_score:
+            - Technical skills: Same weighting as JD.
+            - Soft skills: Exact match = 1.0, no partial/fuzzy matching.
+            - Aggregate: (0.7 * technical_score) + (0.3 * soft_score).
+
+        - final_skill_score: Average of jd_skill_score and rcd_skill_score.
         - recommendation: "Yes" if BOTH:
         - experience_match=True
         - final_skill_score>{THRESHOLD}
