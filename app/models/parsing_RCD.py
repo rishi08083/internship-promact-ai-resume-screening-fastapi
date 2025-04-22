@@ -28,32 +28,56 @@ model = genai.GenerativeModel(
 )
 
 def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
-    prompt = f'''
-        You are an expert job description parser. Extract the following details from the given Role Clarity Document (RCD)
-        and return the data in Python dictionary format with the keys and values matching:
-        
+    prompt = f"""
+    You are an expert skills extractor. Analyze the provided Role Clarity Document and return exactly two lists of skills as it is:
+
+        1. TECHNICAL SKILLS: All hard skills, tools, and technologies required for this role. Separate the combined terms.
+        2. SOFT SKILLS: All interpersonal and business skills required for this role
+
+        Output format (strictly follow this JSON structure):
         {{
-            "skills_required": ["string", ...],
-            "knowledge_areas": ["string", ...],
+            "technical_skills": ["list", "of", "technical", "skills"],
+            "soft_skills": ["list", "of", "soft", "skills"]
         }}
 
-        Do **not** include any additional explanation or formatting.
+        Extraction Rules:
+        1. For TECHNICAL SKILLS:
+        - Include all programming languages, frameworks, libraries, and tools.
+        - Expand abbreviations for all abbreviated skills (For example if mentioned something like "RAG" then change it to "Retrieval-Augmented Generation").
+        - Include specific techniques mentioned.
+        - Include development practices if mentioned.
+        - Include any mentioned platforms or cloud services.
 
-        RCD text:
-        {rcd_text}
-    '''
+        2. For SOFT SKILLS:
+        - Include communication, collaboration, and leadership requirements
+        - Include any mentioned interpersonal skills
+        - Include organizational/teamwork skills
+        - Exclude technical capabilities
+
+        3. For both lists:
+        - Remove duplicates but keep similar skills with different specificity
+        - Standardize terms to common industry names
+        - Include only skills explicitly mentioned or strongly implied
+        - Maintain original capitalization for proper nouns
+        - Sort alphabetically
+
+        Focus particularly on extracting:
+        - techniques/tools
+        - Programming languages and frameworks
+        - Development methodologies
+        - Communication and collaboration requirements
+        - Leadership and mentoring needs
+
+    Document Text:
+    {rcd_text}
+    """
 
     extracted_data = {
-        "skills_required": [],
-        "knowledge_areas": []
+        "technical_skills": [],
+        "soft_skills": []
     }
 
     try:
-        
-        generation_config = {
-            "temperature": 0,
-            "top_p": 1
-        }
 
         response = model.generate_content(prompt)
         raw_response = response.text.strip()
@@ -64,6 +88,7 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
         
         try:
             extracted_data = json.loads(clean_response)
+            return extracted_data
         except json.JSONDecodeError as json_err:
             raise HTTPException(status_code=400, detail=f"JSON Decode Error: {str(json_err)}. Response may not be valid JSON.")
         
@@ -71,5 +96,3 @@ def extract_rcd_info(rcd_text: str) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail=f"JSON Decode Error: {str(json_err)}. Response may not be valid JSON.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gemini API error: {str(e)}")
-
-    return extracted_data
