@@ -48,7 +48,7 @@ def parse_resume_text(resume_txt : str):
         + Degree (string): Degree title
         + start_date (string): Start date of the degree/college (format: YYYY-MM)
         + end_date (string): End date of the degree/college (format: YYYY-MM or "Present")
-    - locations (list of strings): List of locations mentioned (e.g., cities, countries). Also make it semantically correct.
+    - locations (list of strings): List of geographically valid locations extracted from work experience and education sections (e.g., "New York, USA"). Ensure locations are real and correctly formatted.
 
     
     Processing Rules:
@@ -67,6 +67,16 @@ def parse_resume_text(resume_txt : str):
         - Parse both the job metadata and detailed descriptions
         - Extract technologies/tools used from project/role descriptions
         - Include all technologies in the main skills list
+
+        3. For locations:
+        - Extract locations only from work experience (e.g., company location) and education (e.g., college/university location) sections.
+        - Validate locations to ensure they are real and geographically correct (e.g., exclude "Remote", "N/A", or fictional places).
+        - Prioritize explicit mentions in job metadata (e.g., "Google, Mountain View, CA") and education metadata (e.g., "MIT, Cambridge, MA").
+        - Use contextual clues from descriptions if metadata is incomplete (e.g., "worked in Seattle" in experience description).
+        - Standardize format to "City, Country" where possible (e.g., "London" → "London, United Kingdom").
+        - If only a country or state is mentioned, include it as is (e.g., "USA", "California").
+        - Remove duplicates and sort alphabetically.
+        - Exclude vague or non-geographic terms (e.g., "Global", "Headquarters").
 
     Ensure the output is a valid JSON string.
     If a field is missing, use null for strings or an empty list for arrays.
