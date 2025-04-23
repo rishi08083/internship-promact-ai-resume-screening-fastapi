@@ -24,8 +24,11 @@ async def parse_pdf_resume(file_key : str, payload : dict = Depends(get_info)):
 
         parsed_data = parse_resume_text(extracted_text)
 
-        if (parsed_data.get("email") == None and parsed_data.get("phone") == None) or parsed_data.get("skills") == None :
-            raise HTTPException(status_code=400, detail="File does not contain information (no name, email, or phone).")
+        if not parsed_data.get("email") and not parsed_data.get("phone"):
+            raise HTTPException(status_code=400, detail="File does not contain contact information (email or phone).")
+
+        if not parsed_data.get("skills"):
+            raise HTTPException(status_code=400, detail="File does not contain skills information.")
 
         # if not all([parsed_data.get("email"), parsed_data.get("phone"), parsed_data.get("skills")]):
         #     raise HTTPException(status_code=400, detail="File does not contain information (no name, email, or phone).")
@@ -49,8 +52,11 @@ async def parse_doc_resume(file_key : str,  payload : dict = Depends(get_info)):
         extracted_text = extract_text_from_doc(file_content, file_extension)
         parsed_data = parse_resume_text(extracted_text)
 
-        if (parsed_data.get("email") == None and parsed_data.get("phone") == None) or parsed_data.get("skills") == None :
-            raise HTTPException(status_code=400, detail="File does not contain information (no name, email, or phone).")
+        if not parsed_data.get("email") and not parsed_data.get("phone"):
+            raise HTTPException(status_code=400, detail="File does not contain contact information (email or phone).")
+
+        if not parsed_data.get("skills"):
+            raise HTTPException(status_code=400, detail="File does not contain skills information.")
         # if not all([parsed_data.get("email"), parsed_data.get("phone"), parsed_data.get("skills")]):
         #     raise HTTPException(status_code=400, detail="File does not contain information (no name, email, or phone).")
 
@@ -73,8 +79,11 @@ async def parse_image_resume(file_key : str,  payload : dict = Depends(get_info)
         extracted_text = extract_text_from_image(file_content)
         parsed_data = parse_resume_text(extracted_text)
 
-        if (parsed_data.get("email") == None and parsed_data.get("phone") == None) or parsed_data.get("skills") == None :
-            raise HTTPException(status_code=400, detail="File does not contain information (no name, email, or phone).")
+        if not parsed_data.get("email") and not parsed_data.get("phone"):
+            raise HTTPException(status_code=400, detail="File does not contain contact information (email or phone).")
+
+        if not parsed_data.get("skills"):
+            raise HTTPException(status_code=400, detail="File does not contain skills information.")
         # if not all([parsed_data.get("email"), parsed_data.get("phone"), parsed_data.get("skills")]):
         #     raise HTTPException(status_code=400, detail="File does not contain information (no name, email, or phone).")
 
