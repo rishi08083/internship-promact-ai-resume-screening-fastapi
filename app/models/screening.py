@@ -1,12 +1,8 @@
-# from sentence_transformers import SentenceTransformer, util
 import google.generativeai as genai
 from dotenv import load_dotenv
 import os
 import json
 from fastapi import HTTPException
-
-
-# model_1 = SentenceTransformer("all-MiniLM-L6-v2")
 
 load_dotenv(override=True)  
 
@@ -30,21 +26,10 @@ model = genai.GenerativeModel(
   model_name="gemini-2.0-flash",
   generation_config=generation_config,
 )
-# def compute_bert_similarity(data_skills, jd_skills):
-#     embeddings = model_1.encode([data_skills, jd_skills], convert_to_tensor=True)  
-#     similarity = util.pytorch_cos_sim(embeddings[0], embeddings[1]).item()
-#     return similarity
 
-# def compute_rcd_similarity(data_skills, parsed_rcd):
-    
-#     embeddings = model_1.encode([data_skills, parsed_rcd], convert_to_tensor=True)
-#     similarity = util.pytorch_cos_sim(embeddings[0], embeddings[1]).item()
-#     return similarity
     
 
-def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experience, parsed_rcd,
-                            #    final_percent, jd_skill_score, rcd_skill_score
-                               ):
+def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experience, parsed_rcd):
 
     prompt2 = f"""
         You are an AI recruitment assistant. Evaluate candidate fit based on experience range and skill matching. 
@@ -101,7 +86,8 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
     
         - Create separate match/mismatch lists for JD and RCD:
             - Mismatch lists highlight missing critical skills first.
-            - Use "none" for empty mismatch lists.
+            - Use "none" as a single string for empty match/mismatch lists.
+            - If no matching skills found , the match score should be 0 correspondingly.
 
         - Expand abbreviations consistently across all comparisons (e.g., "JS" → "JavaScript").
 
@@ -153,37 +139,15 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
         raise HTTPException(status_code=500, detail=f"Failed to parse AI-generated feedback. Raw response: {feedback_text}")
 
 def screen_candidate_and_generate_feedback(data_skills, data_experience, jd_skills, jd_experience, rcd_tot_skills):
-    # jd_similarity_score = compute_bert_similarity(data_skills, jd_skills)
-    # jd_skill_score = jd_similarity_score
-
-    # rcd_similarity_score_1 = compute_rcd_similarity(data_skills, rcd_tot_skills['rcd_skills'])
-    # rcd_similarity_score_2 = compute_rcd_similarity(data_skills, rcd_tot_skills['rcd_knowledge_areas'])
-
-    # rcd_skill_score = (rcd_similarity_score_1 + rcd_similarity_score_2) / 2
-    # rcd_skill_percent = max(0, rcd_skill_score) * 100
-    # jd_skill_percent = max(0, jd_skill_score) * 100
-
-
-    # final_skill_match_percent = (jd_skill_percent * (JD_WT)) + (rcd_skill_percent * (RCD_WT))
-
     feedback = generate_dynamic_feedback(
         data_skills=data_skills, 
         data_experience=data_experience, 
         jd_skills=jd_skills, 
         jd_experience=jd_experience, 
         parsed_rcd=rcd_tot_skills, 
-        # final_percent=final_skill_match_percent, 
-        # jd_skill_score=jd_skill_percent, 
-        # rcd_skill_score=rcd_skill_percent
     )
     Response = {
         "feedback" : feedback
     }
-
-    # Response.update({
-    #     "JD_Skill_Match" : jd_skill_percent,
-    #     "RCD_Skill_Match" : rcd_skill_percent,
-    #     "Combined_Skill_Match" :  final_skill_match_percent
-    # })
 
     return Response

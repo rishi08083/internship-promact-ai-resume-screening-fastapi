@@ -103,11 +103,20 @@ async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depen
 
         val['feedback'] = feedback_list
 
+        if len(val['feedback']['jd_match']) == 1 and val['feedback']['jd_match'][0] == 'none' :
+            val['feedback']['jd_match'] = 'none'
+            val['feedback']['jd_skill_score'] = '0'
+        
+        if len(val['feedback']['rcd_match']) == 1 and val['feedback']['rcd_match'][0] == 'none' :
+            val['feedback']['rcd_match'] = 'none'
+            val['feedback']['rcd_skill_score'] = '0'
+        
+
         response = ScreenCandidateResponse(
             status="success",
             jd_skill_match=int(val['feedback']['jd_skill_score']),
             rcd_skill_match=int(val['feedback']['rcd_skill_score']),
-            combined_score=int(val['feedback']['final_skill_score']),
+            combined_score=int((int(val['feedback']['rcd_skill_score']) + int(val['feedback']['jd_skill_score'])) / 2),
             feedback=val["feedback"]
         )
 
