@@ -116,7 +116,7 @@ async def screen_candidates(req: ScreenCandidateRequest,  payload : dict = Depen
             status="success",
             jd_skill_match=int(val['feedback']['jd_skill_score']),
             rcd_skill_match=int(val['feedback']['rcd_skill_score']),
-            combined_score=(int(val['feedback']['rcd_skill_score']) + int(val['feedback']['jd_skill_score'])) / 2,
+            combined_score=int((int(val['feedback']['rcd_skill_score']) + int(val['feedback']['jd_skill_score'])) / 2),
             feedback=val["feedback"]
         )
 
