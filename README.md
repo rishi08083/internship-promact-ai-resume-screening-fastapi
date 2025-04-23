@@ -41,7 +41,7 @@
 
 **c. Configure pytesseract in Your Python Script:**
 
-   - In your Python script in the *services/ocr_handler.py*, specify the path to the Tesseract executable if it's not in your system's PATH:
+   - In your Python script in the *services/ocr_handler.py*, specify the path to the Tesseract executable if it's not in your system's PATH:
      ```python
      import pytesseract
 
