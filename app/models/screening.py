@@ -120,7 +120,7 @@ def generate_dynamic_feedback(data_skills, data_experience, jd_skills, jd_experi
         5. Output Notes:
         - All scores as numbers without % symbol
         - Empty mismatch lists as "none"
-        - Feedback should combine experience and skill insights
+        - Feedback should combine experience and skill insights in third person format(not in first person format)
         - Experience_info should show range interpretation
     """
 
